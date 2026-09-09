@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Recibos de Sueldo & SAC - Impresión Individual</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS para Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Mammoth.js para DOCX -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        
+        /* Estilos específicos para impresión fiel del Recibo de Sueldo Ley 20.744 */
+        @media print {
+            body * { visibility: hidden; }
+            #printable-recibo, #printable-recibo * { visibility: visible; }
+            #printable-recibo {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 10mm;
+                background: white;
+                font-size: 11px;
+                color: #000;
+            }
+            .no-print { display: none !important; }
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+        }
+
+        .recibo-table th, .recibo-table td {
+            border: 1px solid #9ca3af;
+            padding: 4px 6px;
+            font-size: 11px;
+        }
+        .recibo-header-bg { background-color: #e5e7eb; font-weight: bold; }
+        .recibo-section-bg { background-color: #f3f4f6; font-weight: bold; }
+
+        /* ========== MARCA DE AGUA DEMO + <id3>Studio ========== */
+        .watermark-demo {
+            position: absolute;
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-32deg);
+            font-size: clamp(3rem, 11vw, 7rem);
+            font-weight: 900;
+            color: rgba(220, 38, 38, 0.10);
+            letter-spacing: 0.08em;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            z-index: 50;
+            line-height: 1;
+        }
+        .watermark-demo small {
+            display: block;
+            font-size: 0.18em;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            color: rgba(100, 116, 139, 0.55);
+            letter-spacing: 0.3em;
+            transform: none;
+        }
+        #printable-recibo { position: relative; overflow: hidden; }
+
+        /* Asegura que la marca de agua tambien se IMPRIMA en el PDF */
+        @media print {
+            .watermark-demo {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+        }
+
+        /* ========== FOOTER ID3 STUDIO ========== */
+        .id3-footer {
+            margin-top: 2rem;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
+            color: #cbd5e1;
+            text-align: center;
+            font-size: 12px;
+            border-top: 3px solid #6366f1;
+            letter-spacing: 0.03em;
+        }
+        .id3-footer b {
+            color: #f1f5f9;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+        .id3-footer span {
+            color: #818cf8;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-900 text-white shadow-lg no-print">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-blue-600 rounded-lg">
+                    <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Sistema de Recibos de Sueldo & SAC - Colegio Católico</h1>
+                    <p class="text-xs text-slate-400">Liquidación de Haberes Docentes y No Docentes | Ley 20.744</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="data-status-badge" class="px-3 py-1 text-xs rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Sin datos cargados (Usando demo)
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+        <!-- Panel de Ingestión de Archivos & Filtros (no-print) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
+            
+            <!-- Ingestión Multiformato -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i data-lucide="upload-cloud" class="w-4 h-4 text-blue-600"></i> Ingestar Archivo Único
+                </h2>
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50 hover:bg-blue-50/50">
+                    <i data-lucide="file-up" class="w-8 h-8 mx-auto text-slate-400 mb-2"></i>
+                    <p class="text-xs font-medium text-slate-700">Arrastrá tu archivo o hacé clic</p>
+                    <p class="text-[10px] text-slate-500 mt-1">Soporta: <b>.xlsx, .json, .docx, .doc, .txt</b></p>
+                    <input type="file" id="file-input" class="hidden" accept=".xlsx, .xls, .json, .docx, .doc, .txt">
+                </div>
+                <div class="mt-3 flex justify-between items-center text-xs">
+                    <button id="btn-load-demo" class="text-blue-600 hover:underline font-medium flex items-center gap-1">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Restablecer datos demo
+                    </button>
+                    <span id="file-name" class="text-slate-500 truncate max-w-[150px]"></span>
+                </div>
+            </div>
+
+            <!-- Filtro Individual por Empleado -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 lg:col-span-2 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i data-lucide="filter" class="w-4 h-4 text-blue-600"></i> Selección y Búsqueda de Empleado
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Buscar por Nombre / Legajo</label>
+                            <div class="relative">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                <input type="text" id="search-employee" placeholder="Escriba nombre o legajo..." 
+                                    class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                            <p id="search-result-count" class="text-[10px] text-slate-500 mt-1">Mostrando 2 de 2 empleados</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Empleado / Legajo</label>
+                            <select id="select-employee" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <!-- Opciones dinámicas -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Período de Liquidación</label>
+                            <input type="text" id="input-periodo" value="Junio 2026 (1er SAC)" 
+                                class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                onchange="updatePeriodInRecibo(this.value)">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Información del Empleado</label>
+                            <div id="emp-summary" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-600 min-h-[38px] flex items-center">
+                                Seleccione un empleado
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Exportación / Impresión -->
+                <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-2 justify-between">
+                    <button id="btn-todos" onclick="exportAllPDFs()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors" title="Imprime todos los recibos de la nómina uno seguido del otro">
+                        <i data-lucide="users" class="w-4 h-4"></i> Imprimir TODOS los Recibos (Lote)
+                    </button>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="btn-pdf" onclick="exportSinglePDF()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / PDF
+                        </button>
+                        <button id="btn-excel" onclick="exportSingleExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar Excel
+                        </button>
+                        <button id="btn-word" onclick="exportSingleWord()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors">
+                            <i data-lucide="file-text" class="w-4 h-4"></i> Exportar Word / .DOC
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- VISTA PREVIA Y VISTA IMPRESIÓN DEL RECIBO LEY 20.744 Y SAC -->
+        <div id="printable-recibo" class="bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-300 max-w-4xl mx-auto">
+            
+            <!-- Encabezado de la Empresa -->
+            <div class="border-b-2 border-slate-800 pb-3 mb-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 id="emp-nombre" class="text-lg font-bold text-slate-900 uppercase">INSTITUCIÓN EDUCATIVA CATÓLICA</h2>
+                        <p id="emp-domicilio" class="text-xs text-slate-600">Parroquia Nuestra Señora de la Asunción - Diócesis</p>
+                        <p class="text-xs font-semibold text-slate-800">C.U.I.T. INSTITUCIÓN: <span id="emp-cuit">30-60000000-8</span></p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block bg-slate-900 text-white font-bold text-xs px-3 py-1 rounded">
+                            Recibo de Haberes Ley 20.744
+                        </span>
+                        <p class="text-[10px] text-slate-500 mt-1">Anexo III Decreto 407 Art. 140 LCT</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos Principales del Empleado -->
+            <table class="w-full recibo-table mb-4 text-xs">
+                <thead>
+                    <tr class="recibo-header-bg text-center">
+                        <th>MES / AÑO</th>
+                        <th>APELLIDO Y NOMBRE</th>
+                        <th>N° LEGAJO</th>
+                        <th>SUELDO BRUTO</th>
+                        <th>ANTIGÜEDAD</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr>
+                        <td id="rec-mes-ano" class="font-bold">Junio 2026</td>
+                        <td id="rec-nombre" class="font-bold text-left px-2">GONZALEZ, JUAN CARLOS</td>
+                        <td id="rec-legajo">21</td>
+                        <td id="rec-bruto" class="font-semibold">$ 2.226.565,41</td>
+                        <td id="rec-antiguedad">10 años</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="w-full recibo-table mb-4 text-xs">
+                <thead>
+                    <tr class="recibo-header-bg text-center">
+                        <th>FECHA INGRESO</th>
+                        <th>CATEGORÍA LABORAL</th>
+                        <th>C.U.I.L.</th>
+                        <th>BANCO</th>
+                        <th>PERÍODO PAGO APORTES</th>
+                        <th>FECHA PAGO APORTES</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr>
+                        <td id="rec-ingreso">10/12/2015</td>
+                        <td id="rec-categoria">Administrativo A</td>
+                        <td id="rec-cuil">20-11111111-3</td>
+                        <td id="rec-banco">BNA</td>
+                        <td id="rec-periodo-aportes">may-26</td>
+                        <td id="rec-fecha-aportes">12/6/2026</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Sección Costo Empleador & Contribuciones Patronales -->
+            <div class="mb-4">
+                <div class="flex justify-between items-center recibo-header-bg p-1 px-2 border border-slate-400">
+                    <span class="font-bold uppercase">COSTO TOTAL EMPLEADOR</span>
+                    <span id="rec-costo-total" class="font-bold text-sm">$ 2.860.653,50</span>
+                </div>
+                <table class="w-full recibo-table text-xs">
+                    <thead>
+                        <tr class="bg-slate-100 text-left">
+                            <th class="w-1/2">CONCEPTO CONTRIBUCIÓN PATRONAL</th>
+                            <th class="text-center">UNIDAD / %</th>
+                            <th class="text-right">BASE</th>
+                            <th class="text-right">MONTO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-contribuciones">
+                        <!-- Cargado dinámicamente -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="font-bold bg-slate-100">
+                            <td colspan="3" class="text-right px-2">SUB TOTAL CONTRIBUCIONES EMPLEADOR:</td>
+                            <td id="rec-subtotal-contrib" class="text-right">$ 634.088,08</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Tabla Principal de Liquidación de Haberes (SAC e Incrementos) -->
+            <div class="mb-4">
+                <div class="recibo-header-bg p-1 px-2 border border-slate-400 flex justify-between">
+                    <span>LIQUIDACIÓN DE HABERES & SAC (1º CUOTA 2026)</span>
+                    <span>SUELDO BRUTO: <b id="rec-bruto-2">$ 2.226.565,41</b></span>
+                </div>
+                <table class="w-full recibo-table text-xs">
+                    <thead>
+                        <tr class="bg-slate-100 text-left">
+                            <th class="w-1/2">CONCEPTO</th>
+                            <th class="text-center">UNIDAD / DÍAS</th>
+                            <th class="text-right">BASE</th>
+                            <th class="text-right">REMUNERATIVO</th>
+                            <th class="text-right">NO REMUNERATIVO</th>
+                            <th class="text-right">DESCUENTOS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-conceptos">
+                        <!-- Conceptos dinámicos -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totales de Composición Salarial -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <table class="w-full recibo-table text-xs">
+                    <thead>
+                        <tr class="recibo-header-bg">
+                            <th colspan="2">COMPOSICIÓN SALARIAL Y NETO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Remunerativo:</td>
+                            <td id="rec-total-rem" class="text-right font-semibold">$ 2.012.065,41</td>
+                        </tr>
+                        <tr>
+                            <td>Total No Remunerativo:</td>
+                            <td id="rec-total-norem" class="text-right font-semibold">$ 214.500,00</td>
+                        </tr>
+                        <tr>
+                            <td>Total Descuentos:</td>
+                            <td id="rec-total-desc" class="text-right font-semibold text-red-600">$ 404.150,26</td>
+                        </tr>
+                        <tr class="recibo-header-bg text-sm">
+                            <td class="font-bold">SUELDO NETO A COBRAR:</td>
+                            <td id="rec-sueldo-neto" class="text-right font-bold text-blue-900">$ 1.822.415,15</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="p-3 border border-slate-400 text-xs flex flex-col justify-between bg-slate-50">
+                    <div>
+                        <p><b>Recibí la suma de:</b> <span id="rec-neto-letras" class="italic">Un millón ochocientos veintidós mil cuatrocientos quince con 15/100 pesos</span></p>
+                        <p class="mt-1"><b>Depositado en:</b> Banco <span id="rec-banco-deposito">BNA</span> - Cta Cte N° <span id="rec-cuenta-deposito">458129/0</span></p>
+                    </div>
+                    <div class="mt-4 pt-2 border-t border-slate-300 flex justify-between items-end">
+                        <div>
+                            <p>Lugar y Fecha:</p>
+                            <p class="font-semibold">Buenos Aires, 30 de JUNIO 2026</p>
+                        </div>
+                        <div class="text-center w-36 border-t border-slate-800 pt-1">
+                            <p class="text-[10px] text-slate-600">Firma del Empleado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico y Desglose de Costo Empleador (Del modelo exacto) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-300 pt-3">
+                <div class="md:col-col-span-1 flex flex-col items-center justify-center">
+                    <p class="text-[10px] font-bold text-slate-700 mb-1">Distribución del Costo Total</p>
+                    <div class="w-36 h-36">
+                        <canvas id="costoChart"></canvas>
+                    </div>
+                </div>
+                <div class="md:col-span-2 text-[10px]">
+                    <p class="font-bold text-slate-800 border-b pb-1 mb-1">Detalle de la composición salarial y costos</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <p class="font-semibold">Total Costo Sindical: <span id="det-sindical-total">$ 0,00</span></p>
+                            <p>- Empleador: <span id="det-sindical-emp">$ 0,00</span></p>
+                            <p>- Trabajador: <span id="det-sindical-trab">$ 0,00</span></p>
+                            <p class="font-semibold mt-1">Total Seguridad Social (Jubilación): <span id="det-seg-social-total">$ 0,00</span></p>
+                            <p>- Empleador (SIPA): <span id="det-seg-social-emp">$ 0,00</span></p>
+                            <p>- Trabajador (11%): <span id="det-seg-social-trab">$ 0,00</span></p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Total Costo INSSJP (PAMI/Ley 19.032): <span id="det-inssjp-total">$ 0,00</span></p>
+                            <p>- Empleador: <span id="det-inssjp-emp">$ 0,00</span></p>
+                            <p>- Trabajador (3%): <span id="det-inssjp-trab">$ 0,00</span></p>
+                            <p class="font-semibold mt-1">Total Obra Social: <span id="det-obra-social-total">$ 0,00</span></p>
+                            <p>- Empleador (6%): <span id="det-obra-social-emp">$ 0,00</span> | Trabajador (3%): <span id="det-obra-social-trab">$ 0,00</span></p>
+                            <p class="font-semibold mt-1">Total ART + Seguros: <span id="det-art-total">$ 0,00</span></p>
+                        </div>
+                    </div>
+                    <p class="text-[9px] text-slate-500 italic mt-2">Nota: Seguridad social del empleador incluye SIPA, Fondo Nacional de Empleo y Asignaciones Familiares. Modelo Ley 20.744 Anexo III Dec. 407.</p>
+                </div>
+            </div>
+
+            <!-- Marca de agua DEMO - <id3>Studio : visible en pantalla y PDF impreso -->
+            <div class="watermark-demo">
+                DEMO
+                <small>GENERADO CON ◆ ID3 STUDIO ◆ NO VÁLIDO SIN LICENCIA</small>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer ID3 Studio - Derechos Reservados (visible en dashboard, no en PDF) -->
+    <footer class="id3-footer no-print">
+        © 2026 <span>&lt;id3&gt;Studio</span> — <b>Sistema de Recibos de Sueldo & SAC para Instituciones Educativas</b><br>
+        Todos los derechos reservados · Licencia de uso exclusivo por sede · Prohibida su redistribución o venta sin autorización escrita.
+    </footer>
+
+    <script>
+        let empleadosData = [
+            {
+                id: "21", legajo: "21",
+                nombre: "GONZALEZ, JUAN CARLOS",
+                ingreso: "10/12/2015", antiguedad: "10 años",
+                categoria: "Docente de Grado",
+                cuil: "20-11111111-3", banco: "BNA", cuenta: "458129/0",
+                periodoAportes: "may-26", fechaAportes: "12/6/2026",
+                sueldoBruto: 2226565.41, costoTotalEmpleador: 2860653.50,
+                contribuciones: [
+                    { concepto: "ART + FFEP ($1827)", unidad: "3.00%", base: 2226565.41, monto: 68623.96 },
+                    { concepto: "Contribución Jubilación / SIPA", unidad: "18.00%", base: 1991559.89, monto: 358480.78 },
+                    { concepto: "Contribución Obra Social", unidad: "6.00%", base: 2226565.41, monto: 133593.92 },
+                    { concepto: "Seguro de Vida Obligatorio", unidad: "424.62", base: 424.62, monto: 424.62 },
+                    { concepto: "Contribución OSECAC (Sindical Patronal)", unidad: "28000.00", base: 28000.00, monto: 28000.00 },
+                    { concepto: "Contribución INACAP", unidad: "5567.94", base: 5567.94, monto: 5567.94 },
+                    { concepto: "Seguro de Retiro La estrella", unidad: "1.60%", base: 2012065.41, monto: 32193.05 },
+                    { concepto: "Seguro de Vida CCT 130/75", unidad: "7203.81", base: 7203.81, monto: 7203.81 }
+                ],
+                conceptos: [
+                    { tipo: "REMUNERATIVO", concepto: "Sueldo básico", unidad: "30", base: 1125631.00, rem: 1125631.00, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "Antigüedad (10%)", unidad: "10%", base: 1125631.00, rem: 112563.10, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "Presentismo", unidad: "8.333%", base: 1238194.10, rem: 103182.84, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 (Aguinaldo)", unidad: "181 días", base: 3705.46, rem: 670688.47, norem: 0, desc: 0 },
+                    { tipo: "NO_REMUNERATIVO", concepto: "Incremento No Remunerativo-Acuerdo Abril 2026", unidad: "30", base: 100000.00, rem: 0, norem: 100000.00, desc: 0 },
+                    { tipo: "NO_REMUNERATIVO", concepto: "Antigüedad-Incremento No Remunerativo", unidad: "10%", base: 100000.00, rem: 0, norem: 10000.00, desc: 0 },
+                    { tipo: "NO_REMUNERATIVO", concepto: "Presentismo-Incremento No Remunerativo", unidad: "8.333%", base: 110000.00, rem: 0, norem: 9166.67, desc: 0 },
+                    { tipo: "NO_REMUNERATIVO", concepto: "Recomposición No Remunerativo", unidad: "30", base: 20000.00, rem: 0, norem: 20000.00, desc: 0 },
+                    { tipo: "NO_REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 S/acuerdos no remunerativos", unidad: "181 días", base: 2012065.41, rem: 0, norem: 71500.00, desc: 0 },
+                    { tipo: "DESCUENTO", concepto: "Jubilación (11%)", unidad: "11%", base: 2012065.41, rem: 0, norem: 0, desc: 221327.20 },
+                    { tipo: "DESCUENTO", concepto: "Ley 19.032 INSSJP / PAMI (3%)", unidad: "3%", base: 2012065.41, rem: 0, norem: 0, desc: 60361.96 },
+                    { tipo: "DESCUENTO", concepto: "Obra Social OSECAC (3%)", unidad: "3%", base: 2226565.41, rem: 0, norem: 0, desc: 66796.96 },
+                    { tipo: "DESCUENTO", concepto: "Aporte Sindical (2%)", unidad: "2%", base: 2226565.41, rem: 0, norem: 0, desc: 44531.31 },
+                    { tipo: "DESCUENTO", concepto: "FAECYS (0.5%)", unidad: "0.5%", base: 2226565.41, rem: 0, norem: 0, desc: 11132.83 }
+                ]
+            },
+            {
+                id: "22", legajo: "22",
+                nombre: "MARTINEZ, MARIA ELENA",
+                ingreso: "15/03/2018", antiguedad: "8 años",
+                categoria: "Preceptora",
+                cuil: "27-22222222-4", banco: "GALICIA", cuenta: "771234/8",
+                periodoAportes: "may-26", fechaAportes: "12/6/2026",
+                sueldoBruto: 1850000.00, costoTotalEmpleador: 2380000.00,
+                contribuciones: [
+                    { concepto: "ART + FFEP", unidad: "3.00%", base: 1850000.00, monto: 55500.00 },
+                    { concepto: "Contribución Jubilación / SIPA", unidad: "18.00%", base: 1650000.00, monto: 297000.00 },
+                    { concepto: "Contribución Obra Social", unidad: "6.00%", base: 1850000.00, monto: 111000.00 },
+                    { concepto: "Contribución Sindical Patronal", unidad: "1.5%", base: 1850000.00, monto: 27750.00 }
+                ],
+                conceptos: [
+                    { tipo: "REMUNERATIVO", concepto: "Sueldo básico", unidad: "30", base: 1000000.00, rem: 1000000.00, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "Antigüedad (8%)", unidad: "8%", base: 1000000.00, rem: 80000.00, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 (Aguinaldo)", unidad: "181 días", base: 3000.00, rem: 540000.00, norem: 0, desc: 0 },
+                    { tipo: "NO_REMUNERATIVO", concepto: "Fondo No Remunerativo Docente", unidad: "30", base: 76666.67, rem: 0, norem: 230000.00, desc: 0 },
+                    { tipo: "DESCUENTO", concepto: "Jubilación (11%)", unidad: "11%", base: 1620000.00, rem: 0, norem: 0, desc: 178200.00 },
+                    { tipo: "DESCUENTO", concepto: "Ley 19.032 INSSJP / PAMI (3%)", unidad: "3%", base: 1620000.00, rem: 0, norem: 0, desc: 48600.00 },
+                    { tipo: "DESCUENTO", concepto: "Obra Social (3%)", unidad: "3%", base: 1850000.00, rem: 0, norem: 0, desc: 55500.00 },
+                    { tipo: "DESCUENTO", concepto: "Aporte Sindical (2%)", unidad: "2%", base: 1850000.00, rem: 0, norem: 0, desc: 37000.00 }
+                ]
+            },
+            {
+                id: "23", legajo: "23",
+                nombre: "FERNANDEZ, ROBERTO DANIEL",
+                ingreso: "01/08/2020", antiguedad: "6 años",
+                categoria: "Profesor de Matemática",
+                cuil: "20-33333333-5", banco: "MACRO", cuenta: "998877/3",
+                periodoAportes: "may-26", fechaAportes: "12/6/2026",
+                sueldoBruto: 1620000.00, costoTotalEmpleador: 2080000.00,
+                contribuciones: [
+                    { concepto: "ART + FFEP", unidad: "3.00%", base: 1620000.00, monto: 48600.00 },
+                    { concepto: "Contribución Jubilación / SIPA", unidad: "18.00%", base: 1400000.00, monto: 252000.00 },
+                    { concepto: "Contribución Obra Social", unidad: "6.00%", base: 1620000.00, monto: 97200.00 },
+                    { concepto: "Contribución Sindical Patronal", unidad: "1.5%", base: 1620000.00, monto: 24300.00 }
+                ],
+                conceptos: [
+                    { tipo: "REMUNERATIVO", concepto: "Sueldo básico", unidad: "30", base: 900000.00, rem: 900000.00, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "Antigüedad (6%)", unidad: "6%", base: 900000.00, rem: 54000.00, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "Horas Cátedra Extra", unidad: "12hs", base: 18000.00, rem: 216000.00, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 (Aguinaldo)", unidad: "181 días", base: 2646.41, rem: 450000.00, norem: 0, desc: 0 },
+                    { tipo: "NO_REMUNERATIVO", concepto: "Compensación No Remunerativa", unidad: "30", base: 666.67, rem: 0, norem: 20000.00, desc: 0 },
+                    { tipo: "DESCUENTO", concepto: "Jubilación (11%)", unidad: "11%", base: 1170000.00, rem: 0, norem: 0, desc: 128700.00 },
+                    { tipo: "DESCUENTO", concepto: "Ley 19.032 INSSJP / PAMI (3%)", unidad: "3%", base: 1170000.00, rem: 0, norem: 0, desc: 35100.00 },
+                    { tipo: "DESCUENTO", concepto: "Obra Social (3%)", unidad: "3%", base: 1620000.00, rem: 0, norem: 0, desc: 48600.00 },
+                    { tipo: "DESCUENTO", concepto: "Aporte Sindical (2%)", unidad: "2%", base: 1620000.00, rem: 0, norem: 0, desc: 32400.00 }
+                ]
+            },
+            {
+                id: "24", legajo: "24",
+                nombre: "LOPEZ, ANA CAROLINA",
+                ingreso: "10/02/2022", antiguedad: "4 años",
+                categoria: "Bibliotecaria",
+                cuil: "27-44444444-6", banco: "SANTANDER", cuenta: "552211/9",
+                periodoAportes: "may-26", fechaAportes: "12/6/2026",
+                sueldoBruto: 1480000.00, costoTotalEmpleador: 1895000.00,
+                contribuciones: [
+                    { concepto: "ART + FFEP", unidad: "3.00%", base: 1480000.00, monto: 44400.00 },
+                    { concepto: "Contribución Jubilación / SIPA", unidad: "18.00%", base: 1280000.00, monto: 230400.00 },
+                    { concepto: "Contribución Obra Social", unidad: "6.00%", base: 1480000.00, monto: 88800.00 },
+                    { concepto: "Contribución Sindical Patronal", unidad: "1.5%", base: 1480000.00, monto: 22200.00 }
+                ],
+                conceptos: [
+                    { tipo: "REMUNERATIVO", concepto: "Sueldo básico", unidad: "30", base: 820000.00, rem: 820000.00, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "Antigüedad (4%)", unidad: "4%", base: 820000.00, rem: 32800.00, norem: 0, desc: 0 },
+                    { tipo: "REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 (Aguinaldo)", unidad: "181 días", base: 2358.56, rem: 427200.00, norem: 0, desc: 0 },
+                    { tipo: "NO_REMUNERATIVO", concepto: "Compensación No Remunerativa", unidad: "30", base: 666.67, rem: 0, norem: 200000.00, desc: 0 },
+                    { tipo: "DESCUENTO", concepto: "Jubilación (11%)", unidad: "11%", base: 852800.00, rem: 0, norem: 0, desc: 93808.00 },
+                    { tipo: "DESCUENTO", concepto: "Ley 19.032 INSSJP / PAMI (3%)", unidad: "3%", base: 852800.00, rem: 0, norem: 0, desc: 25584.00 },
+                    { tipo: "DESCUENTO", concepto: "Obra Social (3%)", unidad: "3%", base: 1480000.00, rem: 0, norem: 0, desc: 44400.00 },
+                    { tipo: "DESCUENTO", concepto: "Aporte Sindical (2%)", unidad: "2%", base: 1480000.00, rem: 0, norem: 0, desc: 29600.00 }
+                ]
+            }
+        ];
+
+        let selectedEmpIndex = 0;
+        let costoChartInstance = null;
+        let filteredIndices = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            filteredIndices = empleadosData.map((_, i) => i);
+            populateSelectEmployee();
+            initChart();
+            setupDropZone();
+            setupSearchBar();
+            updateSearchCount();
+            selectEmployeeByGlobalIndex(0);
+        });
+
+        function setupSearchBar() {
+            const searchInput = document.getElementById('search-employee');
+            searchInput.addEventListener('input', (e) => filterEmployees(e.target.value));
+        }
+
+        function filterEmployees(query) {
+            const q = query.toLowerCase().trim();
+            filteredIndices = empleadosData
+                .map((emp, idx) => ({ emp, idx }))
+                .filter(({ emp }) => {
+                    if (!q) return true;
+                    const nombre = (emp.nombre || '').toLowerCase();
+                    const legajo = String(emp.legajo || '').toLowerCase();
+                    const categoria = (emp.categoria || '').toLowerCase();
+                    return nombre.includes(q) || legajo.includes(q) || categoria.includes(q);
+                })
+                .map(({ idx }) => idx);
+            populateSelectEmployee();
+            updateSearchCount();
+            if (filteredIndices.length > 0) {
+                selectEmployeeByGlobalIndex(filteredIndices[0]);
+            }
+        }
+
+        function updateSearchCount() {
+            const total = empleadosData.length;
+            const shown = filteredIndices.length;
+            document.getElementById('search-result-count').textContent = `Mostrando ${shown} de ${total} empleados`;
+        }
+
+        function populateSelectEmployee() {
+            const select = document.getElementById('select-employee');
+            select.innerHTML = '';
+            if (filteredIndices.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = -1;
+                opt.textContent = 'Sin coincidencias';
+                select.appendChild(opt);
+                return;
+            }
+            if (filteredIndices.indexOf(selectedEmpIndex) === -1) {
+                selectedEmpIndex = filteredIndices[0];
+            }
+            filteredIndices.forEach((globalIdx) => {
+                const emp = empleadosData[globalIdx];
+                const opt = document.createElement('option');
+                opt.value = globalIdx;
+                opt.textContent = `Legajo ${emp.legajo} - ${emp.nombre} (${emp.categoria})`;
+                select.appendChild(opt);
+            });
+            select.value = String(selectedEmpIndex);
+            select.onchange = (e) => selectEmployeeByGlobalIndex(parseInt(e.target.value));
+        }
+
+        function selectEmployeeByGlobalIndex(globalIdx) {
+            if (globalIdx < 0 || globalIdx >= empleadosData.length) return;
+            selectedEmpIndex = globalIdx;
+            renderRecibo(globalIdx);
+            const emp = empleadosData[globalIdx];
+            const summary = document.getElementById('emp-summary');
+            const neto = calculateNetAndTotals(emp).neto;
+            summary.innerHTML = `<span class="font-semibold">${emp.categoria}</span><br><span>Neto: ${formatMoney(neto)} | Antig.: ${emp.antiguedad}</span>`;
+        }
+
+        function formatMoney(num) {
+            if (num === undefined || num === null || isNaN(num)) num = 0;
+            return '$ ' + Number(num).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function calculateNetAndTotals(emp) {
+            let totalRem = 0, totalNoRem = 0, totalDesc = 0, subtotalContrib = 0;
+            (emp.conceptos || []).forEach(c => {
+                totalRem += c.rem || 0; totalNoRem += c.norem || 0; totalDesc += c.desc || 0;
+            });
+            (emp.contribuciones || []).forEach(c => { subtotalContrib += c.monto || 0; });
+            return { totalRem, totalNoRem, totalDesc, subtotalContrib, neto: (totalRem + totalNoRem) - totalDesc };
+        }
+
+        function classifyCosts(emp) {
+            const descuentos = emp.conceptos ? emp.conceptos.filter(c => c.tipo === 'DESCUENTO') : [];
+            const contribuciones = emp.contribuciones || [];
+            const findMonto = (arr, patterns) => {
+                let total = 0;
+                arr.forEach(item => {
+                    const name = (item.concepto || '').toLowerCase();
+                    const isMatch = patterns.some(p => name.includes(p.toLowerCase()));
+                    if (isMatch) total += (item.monto !== undefined ? item.monto : 0) + (item.desc !== undefined ? item.desc : 0);
+                });
+                return total;
+            };
+
+            const jubTrab = findMonto(descuentos, ['jubilación', 'jubilacion', 'sipa']);
+            const jubEmp = findMonto(contribuciones, ['jubilación', 'jubilacion', 'sipa']);
+            const obraTrab = findMonto(descuentos, ['obra social', 'osecac']);
+            const obraEmp = findMonto(contribuciones, ['obra social', 'osecac']);
+            const pamiTrab = findMonto(descuentos, ['inssjp', 'pami', 'ley 19', '19.032']);
+            const pamiEmp = findMonto(contribuciones, ['inssjp', 'pami', 'ley 19']);
+            const sindTrab = findMonto(descuentos, ['sindical', 'sindicato', 'faecys', 'inacap']);
+            const sindEmp = findMonto(contribuciones, ['sindical', 'sindicato', 'faecys', 'inacap', 'osecac']);
+            const artTotal = findMonto(contribuciones, ['art', 'seguro', 'ffep']);
+
+            return {
+                jub: { trab: jubTrab, emp: jubEmp, total: jubTrab + jubEmp },
+                obra: { trab: obraTrab, emp: obraEmp, total: obraTrab + obraEmp },
+                pami: { trab: pamiTrab, emp: pamiEmp, total: pamiTrab + pamiEmp },
+                sind: { trab: sindTrab, emp: sindEmp, total: sindTrab + sindEmp },
+                art: artTotal
+            };
+        }
+
+        function renderRecibo(index) {
+            const emp = empleadosData[index];
+            if (!emp) return;
+
+            document.getElementById('rec-nombre').textContent = emp.nombre;
+            document.getElementById('rec-legajo').textContent = emp.legajo;
+            document.getElementById('rec-bruto').textContent = formatMoney(emp.sueldoBruto);
+            document.getElementById('rec-bruto-2').textContent = formatMoney(emp.sueldoBruto);
+            document.getElementById('rec-antiguedad').textContent = emp.antiguedad;
+            document.getElementById('rec-ingreso').textContent = emp.ingreso;
+            document.getElementById('rec-categoria').textContent = emp.categoria;
+            document.getElementById('rec-cuil').textContent = emp.cuil;
+            document.getElementById('rec-banco').textContent = emp.banco;
+            document.getElementById('rec-banco-deposito').textContent = emp.banco;
+            document.getElementById('rec-cuenta-deposito').textContent = emp.cuenta || 'N° según nómina';
+            document.getElementById('rec-periodo-aportes').textContent = emp.periodoAportes;
+            document.getElementById('rec-fecha-aportes').textContent = emp.fechaAportes;
+            document.getElementById('rec-costo-total').textContent = formatMoney(emp.costoTotalEmpleador);
+            document.getElementById('rec-mes-ano').textContent = getPeriodLabel();
+
+            const tbodyContrib = document.getElementById('tbody-contribuciones');
+            tbodyContrib.innerHTML = '';
+            const t = calculateNetAndTotals(emp);
+
+            (emp.contribuciones || []).forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${c.concepto}</td><td class="text-center">${c.unidad}</td><td class="text-right">${formatMoney(c.base)}</td><td class="text-right">${formatMoney(c.monto)}</td>`;
+                tbodyContrib.appendChild(tr);
+            });
+            document.getElementById('rec-subtotal-contrib').textContent = formatMoney(t.subtotalContrib);
+
+            const tbodyConceptos = document.getElementById('tbody-conceptos');
+            tbodyConceptos.innerHTML = '';
+            (emp.conceptos || []).forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.concepto}</td>
+                    <td class="text-center">${c.unidad}</td>
+                    <td class="text-right">${formatMoney(c.base)}</td>
+                    <td class="text-right font-medium">${c.rem ? formatMoney(c.rem) : ''}</td>
+                    <td class="text-right font-medium">${c.norem ? formatMoney(c.norem) : ''}</td>
+                    <td class="text-right font-medium text-red-600">${c.desc ? formatMoney(c.desc) : ''}</td>
+                `;
+                tbodyConceptos.appendChild(tr);
+            });
+
+            document.getElementById('rec-total-rem').textContent = formatMoney(t.totalRem);
+            document.getElementById('rec-total-norem').textContent = formatMoney(t.totalNoRem);
+            document.getElementById('rec-total-desc').textContent = formatMoney(t.totalDesc);
+            document.getElementById('rec-sueldo-neto').textContent = formatMoney(t.neto);
+            document.getElementById('rec-neto-letras').textContent = numeroALetras(t.neto);
+
+            updateChartAndDetails(t.neto, emp);
+            updatePeriodInRecibo(document.getElementById('input-periodo').value);
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('costoChart').getContext('2d');
+            costoChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Sueldo Neto', 'Jubilación', 'Obra Social', 'INSSJP/PAMI', 'Costo Sindical', 'ART + Seguros'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: ['#2563eb', '#dc2626', '#16a34a', '#ea580c', '#f59e0b', '#0891b2'],
+                        borderColor: '#ffffff',
+                        borderWidth: 1.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const label = ctx.label || '';
+                                    const val = formatMoney(ctx.parsed);
+                                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : '0';
+                                    return `${label}: ${val} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartAndDetails(neto, emp) {
+            const costs = classifyCosts(emp);
+            const chartData = [
+                Math.max(0, neto),
+                Math.max(0, costs.jub.total),
+                Math.max(0, costs.obra.total),
+                Math.max(0, costs.pami.total),
+                Math.max(0, costs.sind.total),
+                Math.max(0, costs.art)
+            ];
+            if (costoChartInstance) {
+                costoChartInstance.data.datasets[0].data = chartData;
+                costoChartInstance.update();
+            }
+            document.getElementById('det-sindical-total').textContent = formatMoney(costs.sind.total);
+            document.getElementById('det-sindical-emp').textContent = formatMoney(costs.sind.emp);
+            document.getElementById('det-sindical-trab').textContent = formatMoney(costs.sind.trab);
+            document.getElementById('det-seg-social-total').textContent = formatMoney(costs.jub.total);
+            document.getElementById('det-seg-social-emp').textContent = formatMoney(costs.jub.emp);
+            document.getElementById('det-seg-social-trab').textContent = formatMoney(costs.jub.trab);
+            document.getElementById('det-inssjp-total').textContent = formatMoney(costs.pami.total);
+            document.getElementById('det-inssjp-emp').textContent = formatMoney(costs.pami.emp);
+            document.getElementById('det-inssjp-trab').textContent = formatMoney(costs.pami.trab);
+            document.getElementById('det-obra-social-total').textContent = formatMoney(costs.obra.total);
+            document.getElementById('det-obra-social-emp').textContent = formatMoney(costs.obra.emp);
+            document.getElementById('det-obra-social-trab').textContent = formatMoney(costs.obra.trab);
+            document.getElementById('det-art-total').textContent = formatMoney(costs.art);
+        }
+
+        function getPeriodLabel() {
+            const p = document.getElementById('input-periodo').value || '';
+            const match = p.match(/([A-Za-zñÑáéíóúÁÉÍÓÚ]+)\s*(\d{4})/);
+            if (match) return match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase() + ' ' + match[2];
+            return p;
+        }
+
+        function updatePeriodInRecibo(val) {
+            const p = val || '';
+            document.getElementById('rec-mes-ano').textContent = getPeriodLabel();
+        }
+
+        function numeroALetras(num) {
+            num = Math.round(num * 100) / 100;
+            const entero = Math.floor(num);
+            const decimales = Math.round((num - entero) * 100);
+            const unidades = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+            const decenas = ['', 'dieci', 'veinti', 'treinta y ', 'cuarenta y ', 'cincuenta y ', 'sesenta y ', 'setenta y ', 'ochenta y ', 'noventa y '];
+            const centenas = ['', 'ciento ', 'doscientos ', 'trescientos ', 'cuatrocientos ', 'quinientos ', 'seiscientos ', 'setecientos ', 'ochocientos ', 'novecientos '];
+            function convertir(n) {
+                if (n < 10) return unidades[n];
+                if (n < 20) {
+                    if (n === 10) return 'diez'; if (n === 11) return 'once'; if (n === 12) return 'doce';
+                    if (n === 13) return 'trece'; if (n === 14) return 'catorce'; if (n === 15) return 'quince';
+                    return 'dieci' + convertir(n - 10);
+                }
+                if (n < 30) return n === 20 ? 'veinte' : 'veinti' + convertir(n - 20);
+                if (n < 100) {
+                    const d = Math.floor(n / 10), u = n % 10;
+                    if (u === 0) {
+                        const names = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+                        return names[d];
+                    }
+                    return decenas[d] + convertir(u);
+                }
+                if (n < 1000) {
+                    const c = Math.floor(n / 100), r = n % 100;
+                    if (n === 100) return 'cien';
+                    return centenas[c] + convertir(r);
+                }
+                if (n < 1000000) {
+                    const miles = Math.floor(n / 1000), resto = n % 1000;
+                    let mStr = miles === 1 ? 'mil' : convertir(miles) + ' mil';
+                    return resto > 0 ? mStr + ' ' + convertir(resto) : mStr;
+                }
+                const millones = Math.floor(n / 1000000), restoM = n % 1000000;
+                let millStr = millones === 1 ? 'un millón' : convertir(millones) + ' millones';
+                return restoM > 0 ? millStr + ' ' + convertir(restoM) : millStr;
+            }
+            let letras = convertir(entero);
+            letras = letras.charAt(0).toUpperCase() + letras.slice(1);
+            letras += ` pesos`;
+            if (decimales > 0) {
+                letras += ` con ${decimales}/100`;
+            } else {
+                letras += ` con 00/100`;
+            }
+            return letras;
+        }
+
+        function setupDropZone() {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-blue-500'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault(); dropZone.classList.remove('border-blue-500');
+                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            });
+            fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+            document.getElementById('btn-load-demo').addEventListener('click', () => { location.reload(); });
+        }
+
+        function handleFile(file) {
+            document.getElementById('file-name').textContent = file.name;
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'xlsx' || ext === 'xls' || ext === 'ods' || ext === 'csv') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if (ext === 'csv') {
+                        const csv = e.target.result;
+                        const json = XLSX.utils.sheet_to_json(XLSX.read(csv, { type: 'string' }).Sheets.Sheet1);
+                        processIngestedData(json, 'CSV/Excel');
+                    } else {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const json = XLSX.utils.sheet_to_json(firstSheet);
+                        processIngestedData(json, 'Excel');
+                    }
+                };
+                if (ext === 'csv') reader.readAsText(file); else reader.readAsArrayBuffer(file);
+            } else if (ext === 'json') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const json = JSON.parse(e.target.result);
+                        processIngestedData(Array.isArray(json) ? json : [json], 'JSON');
+                    } catch (err) { alert('Error al procesar JSON: ' + err.message); }
+                };
+                reader.readAsText(file);
+            } else if (ext === 'docx' || ext === 'doc') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    mammoth.extractRawText({ arrayBuffer: e.target.result })
+                        .then(result => processTextIngestion(result.value, 'Word'))
+                        .catch(err => alert('Error en archivo Word: ' + err.message));
+                };
+                reader.readAsArrayBuffer(file);
+            } else if (ext === 'txt') {
+                const reader = new FileReader();
+                reader.onload = (e) => processTextIngestion(e.target.result, 'Texto');
+                reader.readAsText(file);
+            } else {
+                alert('Formato no soportado. Usá .xlsx, .xls, .ods, .csv, .json, .docx, .doc o .txt');
+            }
+        }
+
+        function parseNumberFromCell(val) {
+            if (val === null || val === undefined || val === '') return 0;
+            if (typeof val === 'number') return val;
+            return parseFloat(String(val).replace(/[^0-9.,-]/g, '').replace(',', '.')) || 0;
+        }
+
+        function processIngestedData(dataArray, source) {
+            if (!dataArray || !dataArray.length) { alert('El archivo no contiene filas de datos.'); return; }
+            const firstRow = dataArray[0] || {};
+            const keys = Object.keys(firstRow).map(k => ({ key: k, lower: k.toLowerCase() }));
+            const findVal = (row, patterns) => {
+                for (const p of patterns) {
+                    for (const { key, lower } of keys) {
+                        if (lower.includes(p.toLowerCase())) {
+                            const v = row[key];
+                            if (v !== undefined && v !== null && v !== '') return v;
+                        }
+                    }
+                }
+                return undefined;
+            };
+
+            empleadosData = dataArray.map((row, idx) => {
+                const bruto = parseNumberFromCell(findVal(row, ['SueldoBruto', 'Bruto', 'Sueldo Bruto', 'Haberes', 'Remunerativo'])) || 1500000;
+                const basico = parseNumberFromCell(findVal(row, ['Basico', 'Básico', 'SueldoBasico', 'Sueldo Básico'])) || bruto * 0.55;
+                const antig = parseNumberFromCell(findVal(row, ['Antiguedad', 'Antigüedad', 'AntiguedadMonto'])) || 0;
+                const sac = parseNumberFromCell(findVal(row, ['SAC', 'Aguinaldo', 'SACMonto'])) || bruto * 0.5;
+                const jubDesc = parseNumberFromCell(findVal(row, ['Jubilacion', 'Jubilación', 'JubDesc'])) || bruto * 0.11;
+                const obraDesc = parseNumberFromCell(findVal(row, ['ObraSocial', 'Obra Social', 'OSDesc'])) || bruto * 0.03;
+                const pamiDesc = parseNumberFromCell(findVal(row, ['PAMI', 'INSSJP', 'Ley19032'])) || bruto * 0.03;
+                const sindDesc = parseNumberFromCell(findVal(row, ['Sindicato', 'Sindical', 'AporteSindical'])) || bruto * 0.02;
+                const otroDesc = parseNumberFromCell(findVal(row, ['OtrosDescuentos', 'Otros Desc', 'Descuento'])) || 0;
+                const artCont = parseNumberFromCell(findVal(row, ['ART', 'SeguroVida'])) || bruto * 0.03;
+                const jubCont = parseNumberFromCell(findVal(row, ['JubilacionPatronal', 'SIPA'])) || bruto * 0.18;
+                const obraCont = parseNumberFromCell(findVal(row, ['ObraSocialPatronal', 'OSPatronal'])) || bruto * 0.06;
+                const sindCont = parseNumberFromCell(findVal(row, ['SindicatoPatronal', 'SindicalPatronal'])) || bruto * 0.015;
+                const costoEmp = bruto + artCont + jubCont + obraCont + sindCont;
+                const leg = findVal(row, ['Legajo', 'NroLegajo', 'Id']) || idx + 1;
+                const nombre = findVal(row, ['Nombre', 'Apellido', 'ApellidoNombre', 'Empleado']) || `EMPLEADO ${idx + 1}`;
+                const ing = findVal(row, ['Ingreso', 'FechaIngreso']) || '01/01/2020';
+                const cat = findVal(row, ['Categoria', 'Categoría', 'Cargo', 'Puesto']) || 'Docente';
+                const anosAntig = findVal(row, ['AntiguedadAños', 'AñosAntigüedad', 'Años']) || null;
+                return {
+                    id: String(leg), legajo: String(leg), nombre: String(nombre).toUpperCase(),
+                    ingreso: String(ing), antiguedad: anosAntig ? anosAntig + ' años' : (antig > 0 ? (Math.round(antig / basico * 100) + '%') : '5 años'),
+                    categoria: String(cat),
+                    cuil: String(findVal(row, ['CUIL', 'Cuil', 'CUIT']) || '20-00000000-0'),
+                    banco: String(findVal(row, ['Banco']) || 'BNA'),
+                    cuenta: String(findVal(row, ['Cuenta', 'NroCuenta', 'CuentaBancaria', 'CtaCte', 'N°Cuenta', 'NumeroCuenta', 'NúmeroCuenta']) || 'N° según nómina'),
+                    periodoAportes: 'may-26', fechaAportes: '12/6/2026',
+                    sueldoBruto: bruto, costoTotalEmpleador: costoEmp,
+                    contribuciones: [
+                        { concepto: 'ART + FFEP', unidad: '3.00%', base: bruto, monto: artCont },
+                        { concepto: 'Contribución Jubilación / SIPA', unidad: '18.00%', base: bruto, monto: jubCont },
+                        { concepto: 'Contribución Obra Social', unidad: '6.00%', base: bruto, monto: obraCont },
+                        { concepto: 'Contribución Sindical Patronal', unidad: '1.5%', base: bruto, monto: sindCont }
+                    ].filter(c => c.monto > 0),
+                    conceptos: [
+                        { tipo: 'REMUNERATIVO', concepto: 'Sueldo básico', unidad: '30', base: basico, rem: basico, norem: 0, desc: 0 },
+                        { tipo: 'REMUNERATIVO', concepto: 'Antigüedad', unidad: '%', base: basico, rem: antig, norem: 0, desc: 0 },
+                        { tipo: 'REMUNERATIVO', concepto: 'SAC 1 CUOTA 2026 (Aguinaldo)', unidad: '181 días', base: Math.max(0, bruto - basico - antig), rem: sac, norem: 0, desc: 0 },
+                        { tipo: 'DESCUENTO', concepto: 'Jubilación (11%)', unidad: '11%', base: bruto, rem: 0, norem: 0, desc: jubDesc },
+                        { tipo: 'DESCUENTO', concepto: 'Ley 19.032 INSSJP / PAMI (3%)', unidad: '3%', base: bruto, rem: 0, norem: 0, desc: pamiDesc },
+                        { tipo: 'DESCUENTO', concepto: 'Obra Social (3%)', unidad: '3%', base: bruto, rem: 0, norem: 0, desc: obraDesc },
+                        { tipo: 'DESCUENTO', concepto: 'Aporte Sindical (2%)', unidad: '2%', base: bruto, rem: 0, norem: 0, desc: sindDesc },
+                        { tipo: 'DESCUENTO', concepto: 'Otros Descuentos', unidad: '-', base: otroDesc, rem: 0, norem: 0, desc: otroDesc }
+                    ].filter(c => (c.rem || 0) + (c.norem || 0) + (c.desc || 0) > 0 || c.concepto === 'Sueldo básico')
+                };
+            });
+
+            filteredIndices = empleadosData.map((_, i) => i);
+            populateSelectEmployee();
+            selectEmployeeByGlobalIndex(0);
+            updateSearchCount();
+
+            const badge = document.getElementById('data-status-badge');
+            badge.textContent = `Cargado con éxito desde ${source} (${empleadosData.length} registros)`;
+            badge.className = "px-3 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+        }
+
+        function processTextIngestion(text, source) {
+            const lines = text.split('\n').filter(l => l.trim().length > 0);
+            const parsed = [];
+            lines.forEach((line) => {
+                const parts = line.split(/[,\t|;]+/);
+                if (parts.length >= 2) {
+                    parsed.push({
+                        Legajo: parts[0].trim(),
+                        Nombre: parts[1].trim(),
+                        SueldoBruto: parts[2] ? parseNumberFromCell(parts[2]) : 1800000,
+                        Categoria: parts[3] ? parts[3].trim() : 'Docente',
+                        CUIL: parts[4] ? parts[4].trim() : undefined,
+                        Banco: parts[5] ? parts[5].trim() : undefined
+                    });
+                }
+            });
+            if (parsed.length > 0) {
+                processIngestedData(parsed, source);
+            } else {
+                alert("No se pudieron extraer columnas estructuradas del texto/Word. Estructura esperada: Legajo, Nombre, SueldoBruto, Categoria, CUIL, Banco");
+            }
+        }
+
+        function exportSinglePDF() {
+            if (empleadosData.length === 0) { alert('No hay datos para imprimir.'); return; }
+            window.print();
+        }
+
+        function exportAllPDFs() {
+            if (!empleadosData.length) { alert('No hay datos para imprimir.'); return; }
+            const confirm = window.confirm(
+                `Se van a imprimir ${empleadosData.length} recibos uno seguido del otro.\n\n` +
+                `Sugerencia: en el diálogo de impresión elija "Guardar como PDF" y cada empleado quedará en una hoja separada dentro del mismo archivo.\n\n` +
+                `¿Desea continuar?`
+            );
+            if (!confirm) return;
+            const originalIdx = selectedEmpIndex;
+            const allHTML = [];
+            const printContainer = document.createElement('div');
+            printContainer.id = 'batch-print-container';
+            document.body.appendChild(printContainer);
+            empleadosData.forEach((emp, idx) => {
+                selectedEmpIndex = idx;
+                renderRecibo(idx);
+                const clone = document.getElementById('printable-recibo').cloneNode(true);
+                clone.id = 'printable-recibo-' + idx;
+                clone.style.pageBreakAfter = idx < empleadosData.length - 1 ? 'always' : 'auto';
+                clone.style.marginBottom = idx < empleadosData.length - 1 ? '20px' : '0';
+                printContainer.appendChild(clone);
+            });
+            const batchStyle = document.createElement('style');
+            batchStyle.id = 'batch-print-style';
+            batchStyle.textContent = `
+                @media print {
+                    body * { visibility: hidden !important; }
+                    #batch-print-container, #batch-print-container * { visibility: visible !important; }
+                    #batch-print-container { position: absolute; left: 0; top: 0; width: 100%; }
+                    #batch-print-container > div { page-break-after: always; }
+                    #batch-print-container > div:last-child { page-break-after: auto; }
+                    .no-print { display: none !important; }
+                }
+            `;
+            document.head.appendChild(batchStyle);
+            selectedEmpIndex = originalIdx;
+            renderRecibo(originalIdx);
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    if (document.getElementById('batch-print-style')) document.head.removeChild(document.getElementById('batch-print-style'));
+                    if (document.getElementById('batch-print-container')) document.body.removeChild(document.getElementById('batch-print-container'));
+                }, 1000);
+            }, 500);
+        }
+
+        function exportSingleExcel() {
+            const emp = empleadosData[selectedEmpIndex];
+            if (!emp) return;
+            const periodo = document.getElementById('input-periodo').value;
+            const wsData = [
+                ["RECIBO DE HABERES - LEY 20.744 / SAC"],
+                ["Empresa:", "INSTITUCIÓN EDUCATIVA CATÓLICA", "CUIT:", "30-00000000-0"],
+                ["Empleado:", emp.nombre, "Legajo:", emp.legajo],
+                ["CUIL:", emp.cuil, "Categoría:", emp.categoria],
+                ["Período:", periodo, "Sueldo Bruto:", emp.sueldoBruto],
+                [],
+                ["Concepto", "Unidad", "Base", "Remunerativo", "No Remunerativo", "Descuento"]
+            ];
+            emp.conceptos.forEach(c => {
+                wsData.push([c.concepto, c.unidad, c.base, c.rem || "", c.norem || "", c.desc || ""]);
+            });
+            const t = calculateNetAndTotals(emp);
+            wsData.push([]);
+            wsData.push(["Total Remunerativo", "", "", t.totalRem, "", ""]);
+            wsData.push(["Total No Remunerativo", "", "", "", t.totalNoRem, ""]);
+            wsData.push(["Total Descuentos", "", "", "", "", t.totalDesc]);
+            wsData.push(["SUELDO NETO", "", "", "", "", t.neto]);
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, "Recibo_SAC");
+            const filename = `Recibo_SAC_Legajo_${emp.legajo}_${emp.nombre.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        }
+
+        function exportSingleWord() {
+            const emp = empleadosData[selectedEmpIndex];
+            if (!emp) return;
+            const reciboHTML = document.getElementById('printable-recibo').outerHTML;
+            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
+                "xmlns:w='urn:schemas-microsoft-com:office:word' "+
+                "xmlns='http://www.w3.org/TR/REC-html40'>"+
+                "<head><meta charset='utf-8'><title>Recibo de Sueldo SAC</title></head><body>";
+            const footer = "</body></html>";
+            const sourceHTML = header + reciboHTML + footer;
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = `Recibo_SAC_Legajo_${emp.legajo}_${emp.nombre.replace(/[^a-zA-Z0-9]/g, '_')}.doc`;
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        }
+
+        // ============================================================
+        // PROTECCION ID3 STUDIO - Anti pirateria, Nivel 2 (CPU Friendly)
+        // Optimizada para notebooks bajos recursos: polling 2000ms,
+        // sin loops pesados, sin consume de CPU.
+        // ============================================================
+        (function protegerId3StudioDEMO(){
+            var BOTONES_EXPORTAR = ["btn-todos","btn-pdf","btn-excel","btn-word"];
+            var MS_POLLING = 2000;
+
+            function bloquearBotones(motivo){
+                BOTONES_EXPORTAR.forEach(function(id){
+                    var b = document.getElementById(id);
+                    if (b && !b.dataset.id3Bloq){
+                        b.dataset.id3Bloq = "1";
+                        b.disabled = true;
+                        b.style.opacity = "0.45";
+                        b.style.filter = "grayscale(100%)";
+                        b.style.cursor = "not-allowed";
+                        b.style.pointerEvents = "none";
+                        var textoOriginal = b.textContent;
+                        b.dataset.id3TextoOrig = textoOriginal;
+                        b.innerHTML = "🔒 LICENCIA DEMO - <id3>Studio";
+                        b.title = motivo || "Demo - Contacte <id3>Studio para habilitar exportaciones.";
+                        b.onclick = function(ev){ ev.preventDefault(); ev.stopPropagation(); alert("DEMO ID3 STUDIO sin licencia:\\n\\nContacte para habilitar esta funcionalidad.\\n© <id3>Studio - Todos los derechos reservados."); return false; };
+                    }
+                });
+                if (!document.getElementById("id3-barra-bloq")){
+                    var bar = document.createElement("div");
+                    bar.id = "id3-barra-bloq";
+                    bar.className = "no-print";
+                    bar.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(90deg,#7f1d1d,#b91c1c,#7f1d1d);color:#fff;padding:9px 16px;font-family:Inter,Arial,sans-serif;font-size:13px;font-weight:700;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.35);letter-spacing:0.04em;";
+                    bar.innerHTML = "🚫 SISTEMA EN MODO DEMO · SIN LICENCIA · <span style='color:#fde68a'>Impresiones y exportaciones DESHABILITADAS</span> · © &lt;id3&gt;Studio 2026";
+                    document.body.appendChild(bar);
+                    document.body.style.paddingTop = "56px";
+                }
+            }
+
+            function restaurarWatermarkSiFalta(){
+                var padre = document.getElementById("printable-recibo");
+                if (!padre) return;
+                if (!document.querySelector(".watermark-demo")){
+                    var wm = document.createElement("div");
+                    wm.className = "watermark-demo";
+                    wm.innerHTML = "DEMO<small>GENERADO CON ◆ ID3 STUDIO ◆ NO VÁLIDO SIN LICENCIA</small>";
+                    padre.appendChild(wm);
+                }
+            }
+
+            function checkDebugger(){
+                var t0 = performance.now();
+                try { (function(){debugger;})(); } catch(e){}
+                return (performance.now() - t0) > 80;
+            }
+
+            setInterval(function(){
+                // 1) Si la marca de agua fue borrada por F12, la restauramos y bloqueamos
+                restaurarWatermarkSiFalta();
+
+                // 2) Bloqueamos SIEMPRE las exportaciones en MODO DEMO
+                //    (Cuando vendas licencia real reemplaza esto por: if (!licenciaValida) bloquearBotones())
+                bloquearBotones("Modo DEMO - Sin licencia <id3>Studio activa");
+
+                // 3) Si detectaron DevTools abierto, limpiar consola para evitar inspeccion
+                if (checkDebugger()){ try { console.clear(); } catch(e){} }
+            }, MS_POLLING);
+
+            // Bloquear inmediatamente al cargar la primera vez (sin esperar los 2s)
+            setTimeout(function(){
+                bloquearBotones("Modo DEMO - Sin licencia <id3>Studio activa");
+            }, 50);
+        })();
+    </script>
+</body>
+</html>
