@@ -1,0 +1,43 @@
+# =============================
+# DEMO-LITO .gitignore
+# Subir SOLO: demo_local_testing.html + render-light-core.js
+# Todo lo demas (datos sensibles, binarios, IDE, temp) EXCLUIR
+# =============================
+
+# --- Datos reales / anonimizados cliente ---
+Nominas Lito/
+Nominas*
+*.xlsx
+*.xls
+*.ods
+*.csv
+*.docx
+*.doc
+
+# --- IDE / Editor / Runtime ---
+.trae/
+.vscode/
+.idea/
+node_modules/
+__pycache__/
+
+# --- Archivos temporales y scripts diagnostico ---
+_diag_*.js
+_analisis_nominas.js
+*.log
+*.tmp
+*.bak
+
+# --- Archivos maestro / distribucion (separados, no se suben) ---
+dashboard_recibos_sac.html
+dashboard_recibos_sac_ID3_PRO_OFUSCADO.html
+dashboard_recibos_sac*
+
+# --- Archivos anteriores demo ejemplo ---
+nomina_dashboard.xlsx
+*.jsonl
+
+# --- OS ---
+Thumbs.db
+.DS_Store
+Desktop.ini

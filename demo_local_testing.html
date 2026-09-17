@@ -7,8 +7,6 @@
     <title>DEMO-LITO</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js para gráficos -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SheetJS para Excel -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Mammoth.js para DOCX -->
@@ -88,11 +86,8 @@
                     <p class="text-[10px] text-slate-500 mt-1">Soporta: <b>.xlsx, .json, .docx, .doc, .txt</b></p>
                     <input type="file" id="file-input" class="hidden" accept=".xlsx, .xls, .json, .docx, .doc, .txt">
                 </div>
-                <div class="mt-3 flex justify-between items-center text-xs">
-                    <button id="btn-load-demo" class="text-blue-600 hover:underline font-medium flex items-center gap-1">
-                        <i data-lucide="database" class="w-3 h-3"></i> Cargar datos de ejemplo
-                    </button>
-                    <span id="file-name" class="text-slate-500 truncate max-w-[150px]"></span>
+                <div class="mt-3 flex justify-end items-center text-xs">
+                    <span id="file-name" class="text-slate-500 truncate max-w-[250px]"></span>
                 </div>
             </div>
 
@@ -119,18 +114,12 @@
                             </select>
                         </div>
                     </div>
-                    <!-- FILTROS AVANZADOS: Categoría + Banco + Limpiar / Autoguardado -->
-                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
+                    <!-- FILTROS AVANZADOS: Categoría + Limpiar / Autoguardado -->
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
                         <div>
                             <label class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Filtrar por Categoría / Cargo</label>
                             <select id="filter-categoria" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 <option value="">Todas las categorías</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Filtrar por Banco</label>
-                            <select id="filter-banco" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                <option value="">Todos los bancos</option>
                             </select>
                         </div>
                         <div class="flex items-end gap-2">
@@ -160,21 +149,7 @@
 
                 <!-- Botones de Exportación / Impresión / Emails -->
                 <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-2 justify-between">
-                    <div class="flex flex-wrap gap-2">
-                        <button id="btn-todos" onclick="exportAllPDFs()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors" title="Imprime todos los recibos de la nómina uno seguido del otro">
-                            <i data-lucide="users" class="w-4 h-4"></i> Imprimir TODOS los Recibos (Lote)
-                        </button>
-                        <button id="btn-mail-todos" onclick="abrirMailsTodosFiltrados()" class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors" title="Abre el cliente de correo para cada empleado filtrado (uno por uno)">
-                            <i data-lucide="send" class="w-4 h-4"></i> Enviar Lote Filtrado por Mail
-                        </button>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button id="btn-mail-individual" onclick="abrirMailPorEmpleado(selectedEmpIndex)" class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors" title="Abre el cliente de correo con el recibo del empleado seleccionado">
-                            <i data-lucide="mail" class="w-4 h-4"></i> Enviar por Mail
-                        </button>
-                        <button id="btn-config-mail" onclick="abrirModalEmails()" class="bg-slate-600 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors" title="Cargar / editar los correos electrónicos de todo el personal">
-                            <i data-lucide="settings-2" class="w-4 h-4"></i> ⚙️ Correos Personal
-                        </button>
+                    <div class="flex flex-wrap gap-2 justify-end">
                         <button id="btn-pdf" onclick="exportSinglePDF()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors">
                             <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / PDF
                         </button>
@@ -293,11 +268,11 @@
                 </thead>
                 <tbody class="text-center">
                     <tr>
-                        <td id="rec-mes-ano" class="font-bold">Junio 2026</td>
-                        <td id="rec-nombre" class="font-bold text-left px-2">GONZALEZ, JUAN CARLOS</td>
-                        <td id="rec-legajo">21</td>
-                        <td id="rec-bruto" class="font-semibold">$ 2.226.565,41</td>
-                        <td id="rec-antiguedad">10 años</td>
+                        <td id="rec-mes-ano" class="font-bold">—</td>
+                        <td id="rec-nombre" class="font-bold text-left px-2">—</td>
+                        <td id="rec-legajo">—</td>
+                        <td id="rec-bruto" class="font-semibold">$ 0,00</td>
+                        <td id="rec-antiguedad">—</td>
                     </tr>
                 </tbody>
             </table>
@@ -315,12 +290,12 @@
                 </thead>
                 <tbody class="text-center">
                     <tr>
-                        <td id="rec-ingreso">10/12/2015</td>
-                        <td id="rec-categoria">Administrativo A</td>
-                        <td id="rec-cuil">20-11111111-3</td>
-                        <td id="rec-banco">BNA</td>
-                        <td id="rec-periodo-aportes">may-26</td>
-                        <td id="rec-fecha-aportes">12/6/2026</td>
+                        <td id="rec-ingreso">—</td>
+                        <td id="rec-categoria">—</td>
+                        <td id="rec-cuil">—</td>
+                        <td id="rec-banco">—</td>
+                        <td id="rec-periodo-aportes">—</td>
+                        <td id="rec-fecha-aportes">—</td>
                     </tr>
                 </tbody>
             </table>
@@ -329,7 +304,7 @@
             <div class="mb-4">
                 <div class="flex justify-between items-center recibo-header-bg p-1 px-2 border border-slate-400">
                     <span class="font-bold uppercase">COSTO TOTAL EMPLEADOR</span>
-                    <span id="rec-costo-total" class="font-bold text-sm">$ 2.860.653,50</span>
+                    <span id="rec-costo-total" class="font-bold text-sm">$ 0,00</span>
                 </div>
                 <table class="w-full recibo-table text-xs">
                     <thead>
@@ -341,12 +316,18 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-contribuciones">
-                        <!-- Cargado dinámicamente -->
+                        <!-- 6 FILAS FIJAS predefinidas. Sin innerHTML, SOLO textContent al render. -->
+                        <tr><td id="contrib-1-c">Aportes Seguridad Social (Jubilación / SIPA)</td><td id="contrib-1-u" class="text-center">MONTO</td><td id="contrib-1-b" class="text-right"></td><td id="contrib-1-m" class="text-right"></td></tr>
+                        <tr><td id="contrib-2-c">Contribución Obra Social (Empleador)</td><td id="contrib-2-u" class="text-center">MONTO</td><td id="contrib-2-b" class="text-right"></td><td id="contrib-2-m" class="text-right"></td></tr>
+                        <tr><td id="contrib-3-c">ART + FFEP / Aseguradora Riesgos Trabajo</td><td id="contrib-3-u" class="text-center">MONTO</td><td id="contrib-3-b" class="text-right"></td><td id="contrib-3-m" class="text-right"></td></tr>
+                        <tr><td id="contrib-4-c">Seguro de Vida Obligatorio + CCT (SVC)</td><td id="contrib-4-u" class="text-center">MONTO</td><td id="contrib-4-b" class="text-right"></td><td id="contrib-4-m" class="text-right"></td></tr>
+                        <tr><td id="contrib-5-c">OSECAC / Fondo Sindical Patronal (FSP)</td><td id="contrib-5-u" class="text-center">MONTO</td><td id="contrib-5-b" class="text-right"></td><td id="contrib-5-m" class="text-right"></td></tr>
+                        <tr><td id="contrib-6-c">Aportes INACAP y otros (según nómina)</td><td id="contrib-6-u" class="text-center">MONTO</td><td id="contrib-6-b" class="text-right"></td><td id="contrib-6-m" class="text-right"></td></tr>
                     </tbody>
                     <tfoot>
                         <tr class="font-bold bg-slate-100">
                             <td colspan="3" class="text-right px-2">SUB TOTAL CONTRIBUCIONES EMPLEADOR:</td>
-                            <td id="rec-subtotal-contrib" class="text-right">$ 634.088,08</td>
+                            <td id="rec-subtotal-contrib" class="text-right">$ 0,00</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -355,8 +336,8 @@
             <!-- Tabla Principal de Liquidación de Haberes (SAC e Incrementos) -->
             <div class="mb-4">
                 <div class="recibo-header-bg p-1 px-2 border border-slate-400 flex justify-between">
-                    <span>LIQUIDACIÓN DE HABERES & SAC (1º CUOTA 2026)</span>
-                    <span>SUELDO BRUTO: <b id="rec-bruto-2">$ 2.226.565,41</b></span>
+                    <span id="rec-liquidacion-titulo">LIQUIDACIÓN DE HABERES &amp; SAC</span>
+                    <span>SUELDO BRUTO: <b id="rec-bruto-2">$ 0,00</b></span>
                 </div>
                 <table class="w-full recibo-table text-xs">
                     <thead>
@@ -370,7 +351,43 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-conceptos">
-                        <!-- Conceptos dinámicos -->
+                        <!-- 28 FILAS FIJAS. Sin innerHTML. SOLO textContent al render.
+                             Estructura: 1-14 Haberes Remunerativos | 15 Subtot REM | 16-21 Haberes No Remunerativos | 22 Subtot NO REM | 23-27 Aportes/Descuentos | 28 Subtot DESC
+                             Sufijos: -c concepto | -u unidad/dias | -b base | -r remunerativo | -nr no remunerativo | -d descuento -->
+                        <!-- HABERES REMUNERATIVOS (14 filas) -->
+                        <tr><td id="conc-1-c">Sueldo Básico</td><td id="conc-1-u" class="text-center">30 d</td><td id="conc-1-b" class="text-right"></td><td id="conc-1-r" class="text-right"></td><td id="conc-1-nr" class="text-right"></td><td id="conc-1-d" class="text-right"></td></tr>
+                        <tr><td id="conc-2-c">Presentismo</td><td id="conc-2-u" class="text-center">%</td><td id="conc-2-b" class="text-right"></td><td id="conc-2-r" class="text-right"></td><td id="conc-2-nr" class="text-right"></td><td id="conc-2-d" class="text-right"></td></tr>
+                        <tr><td id="conc-3-c">Tiempo Completo</td><td id="conc-3-u" class="text-center">MONTO</td><td id="conc-3-b" class="text-right"></td><td id="conc-3-r" class="text-right"></td><td id="conc-3-nr" class="text-right"></td><td id="conc-3-d" class="text-right"></td></tr>
+                        <tr><td id="conc-4-c">Estado Docente</td><td id="conc-4-u" class="text-center">MONTO</td><td id="conc-4-b" class="text-right"></td><td id="conc-4-r" class="text-right"></td><td id="conc-4-nr" class="text-right"></td><td id="conc-4-d" class="text-right"></td></tr>
+                        <tr><td id="conc-5-c">Título Docente</td><td id="conc-5-u" class="text-center">MONTO</td><td id="conc-5-b" class="text-right"></td><td id="conc-5-r" class="text-right"></td><td id="conc-5-nr" class="text-right"></td><td id="conc-5-d" class="text-right"></td></tr>
+                        <tr><td id="conc-6-c">Residencia</td><td id="conc-6-u" class="text-center">MONTO</td><td id="conc-6-b" class="text-right"></td><td id="conc-6-r" class="text-right"></td><td id="conc-6-nr" class="text-right"></td><td id="conc-6-d" class="text-right"></td></tr>
+                        <tr><td id="conc-7-c">Tarea Diferenciada</td><td id="conc-7-u" class="text-center">MONTO</td><td id="conc-7-b" class="text-right"></td><td id="conc-7-r" class="text-right"></td><td id="conc-7-nr" class="text-right"></td><td id="conc-7-d" class="text-right"></td></tr>
+                        <tr><td id="conc-8-c">Adicional Educación Especial (Adic.Ed.Esp)</td><td id="conc-8-u" class="text-center">MONTO</td><td id="conc-8-b" class="text-right"></td><td id="conc-8-r" class="text-right"></td><td id="conc-8-nr" class="text-right"></td><td id="conc-8-d" class="text-right"></td></tr>
+                        <tr><td id="conc-9-c">Recargo Docente (Rec. Docente)</td><td id="conc-9-u" class="text-center">MONTO</td><td id="conc-9-b" class="text-right"></td><td id="conc-9-r" class="text-right"></td><td id="conc-9-nr" class="text-right"></td><td id="conc-9-d" class="text-right"></td></tr>
+                        <tr><td id="conc-10-c">Antigüedad (Haberes)</td><td id="conc-10-u" class="text-center">% / MONTO</td><td id="conc-10-b" class="text-right"></td><td id="conc-10-r" class="text-right"></td><td id="conc-10-nr" class="text-right"></td><td id="conc-10-d" class="text-right"></td></tr>
+                        <tr><td id="conc-11-c">Otros Remunerativos (OtrosR)</td><td id="conc-11-u" class="text-center">MONTO</td><td id="conc-11-b" class="text-right"></td><td id="conc-11-r" class="text-right"></td><td id="conc-11-nr" class="text-right"></td><td id="conc-11-d" class="text-right"></td></tr>
+                        <tr><td id="conc-12-c">Otros Remunerativos 2 (OtrosR2)</td><td id="conc-12-u" class="text-center">MONTO</td><td id="conc-12-b" class="text-right"></td><td id="conc-12-r" class="text-right"></td><td id="conc-12-nr" class="text-right"></td><td id="conc-12-d" class="text-right"></td></tr>
+                        <tr><td id="conc-13-c">Vacaciones Proporcionales (VacProp)</td><td id="conc-13-u" class="text-center">Días / MONTO</td><td id="conc-13-b" class="text-right"></td><td id="conc-13-r" class="text-right"></td><td id="conc-13-nr" class="text-right"></td><td id="conc-13-d" class="text-right"></td></tr>
+                        <tr><td id="conc-14-c">SAC Proporcional / Aguinaldo (SacProp)</td><td id="conc-14-u" class="text-center">Días / MONTO</td><td id="conc-14-b" class="text-right"></td><td id="conc-14-r" class="text-right"></td><td id="conc-14-nr" class="text-right"></td><td id="conc-14-d" class="text-right"></td></tr>
+                        <!-- Subtotal REMUNERATIVO -->
+                        <tr class="bg-slate-100 font-semibold"><td id="conc-15-c">SUB TOTAL REMUNERATIVO</td><td id="conc-15-u" class="text-center"></td><td id="conc-15-b" class="text-right"></td><td id="conc-15-r" class="text-right"></td><td id="conc-15-nr" class="text-right"></td><td id="conc-15-d" class="text-right"></td></tr>
+                        <!-- HABERES NO REMUNERATIVOS (6 filas) -->
+                        <tr><td id="conc-16-c">Salario Familiar (No Remunerativo)</td><td id="conc-16-u" class="text-center">MONTO</td><td id="conc-16-b" class="text-right"></td><td id="conc-16-r" class="text-right"></td><td id="conc-16-nr" class="text-right"></td><td id="conc-16-d" class="text-right"></td></tr>
+                        <tr><td id="conc-17-c">Asignación Gobierno Provincial (AsigGobProv)</td><td id="conc-17-u" class="text-center">MONTO</td><td id="conc-17-b" class="text-right"></td><td id="conc-17-r" class="text-right"></td><td id="conc-17-nr" class="text-right"></td><td id="conc-17-d" class="text-right"></td></tr>
+                        <tr><td id="conc-18-c">Asignación Gobierno Nacional (AsigGobNac)</td><td id="conc-18-u" class="text-center">MONTO</td><td id="conc-18-b" class="text-right"></td><td id="conc-18-r" class="text-right"></td><td id="conc-18-nr" class="text-right"></td><td id="conc-18-d" class="text-right"></td></tr>
+                        <tr><td id="conc-19-c">Aula (No Remunerativo)</td><td id="conc-19-u" class="text-center">MONTO</td><td id="conc-19-b" class="text-right"></td><td id="conc-19-r" class="text-right"></td><td id="conc-19-nr" class="text-right"></td><td id="conc-19-d" class="text-right"></td></tr>
+                        <tr><td id="conc-20-c">Otros No Remunerativos (OtrosNR)</td><td id="conc-20-u" class="text-center">MONTO</td><td id="conc-20-b" class="text-right"></td><td id="conc-20-r" class="text-right"></td><td id="conc-20-nr" class="text-right"></td><td id="conc-20-d" class="text-right"></td></tr>
+                        <tr><td id="conc-21-c">Otros No Remunerativos 2 (OtrosNR2)</td><td id="conc-21-u" class="text-center">MONTO</td><td id="conc-21-b" class="text-right"></td><td id="conc-21-r" class="text-right"></td><td id="conc-21-nr" class="text-right"></td><td id="conc-21-d" class="text-right"></td></tr>
+                        <!-- Subtotal NO REMUNERATIVO -->
+                        <tr class="bg-slate-100 font-semibold"><td id="conc-22-c">SUB TOTAL NO REMUNERATIVO</td><td id="conc-22-u" class="text-center"></td><td id="conc-22-b" class="text-right"></td><td id="conc-22-r" class="text-right"></td><td id="conc-22-nr" class="text-right"></td><td id="conc-22-d" class="text-right"></td></tr>
+                        <!-- Descuentos / Aportes trabajador (5 filas) -->
+                        <tr><td id="conc-23-c">Aporte Jubilatorio (11%) / Seguridad Social (Ap.SS)</td><td id="conc-23-u" class="text-center">11%</td><td id="conc-23-b" class="text-right"></td><td id="conc-23-r" class="text-right"></td><td id="conc-23-nr" class="text-right"></td><td id="conc-23-d" class="text-right text-red-600"></td></tr>
+                        <tr><td id="conc-24-c">Aporte Obra Social (3%) (Ap.OS)</td><td id="conc-24-u" class="text-center">3%</td><td id="conc-24-b" class="text-right"></td><td id="conc-24-r" class="text-right"></td><td id="conc-24-nr" class="text-right"></td><td id="conc-24-d" class="text-right text-red-600"></td></tr>
+                        <tr><td id="conc-25-c">FSP / FAECYS (Ap.FSP)</td><td id="conc-25-u" class="text-center">%</td><td id="conc-25-b" class="text-right"></td><td id="conc-25-r" class="text-right"></td><td id="conc-25-nr" class="text-right"></td><td id="conc-25-d" class="text-right text-red-600"></td></tr>
+                        <tr><td id="conc-26-c">Aporte Sindical (Ap.Sindical)</td><td id="conc-26-u" class="text-center">%</td><td id="conc-26-b" class="text-right"></td><td id="conc-26-r" class="text-right"></td><td id="conc-26-nr" class="text-right"></td><td id="conc-26-d" class="text-right text-red-600"></td></tr>
+                        <tr><td id="conc-27-c">Caja Complementaria / Seguro Vida (Ap.CC)</td><td id="conc-27-u" class="text-center">MONTO</td><td id="conc-27-b" class="text-right"></td><td id="conc-27-r" class="text-right"></td><td id="conc-27-nr" class="text-right"></td><td id="conc-27-d" class="text-right text-red-600"></td></tr>
+                        <!-- Subtotal DESCUENTOS -->
+                        <tr class="bg-slate-100 font-semibold"><td id="conc-28-c">SUB TOTAL DESCUENTOS</td><td id="conc-28-u" class="text-center"></td><td id="conc-28-b" class="text-right"></td><td id="conc-28-r" class="text-right"></td><td id="conc-28-nr" class="text-right"></td><td id="conc-28-d" class="text-right text-red-700"></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -386,33 +403,29 @@
                     <tbody>
                         <tr>
                             <td>Total Remunerativo:</td>
-                            <td id="rec-total-rem" class="text-right font-semibold">$ 2.012.065,41</td>
+                            <td id="rec-total-rem" class="text-right font-semibold">$ 0,00</td>
                         </tr>
                         <tr>
                             <td>Total No Remunerativo:</td>
-                            <td id="rec-total-norem" class="text-right font-semibold">$ 214.500,00</td>
+                            <td id="rec-total-norem" class="text-right font-semibold">$ 0,00</td>
                         </tr>
                         <tr>
                             <td>Total Descuentos:</td>
-                            <td id="rec-total-desc" class="text-right font-semibold text-red-600">$ 404.150,26</td>
+                            <td id="rec-total-desc" class="text-right font-semibold text-red-600">$ 0,00</td>
                         </tr>
                         <tr class="recibo-header-bg text-sm">
                             <td class="font-bold">SUELDO NETO A COBRAR:</td>
-                            <td id="rec-sueldo-neto" class="text-right font-bold text-blue-900">$ 1.822.415,15</td>
+                            <td id="rec-sueldo-neto" class="text-right font-bold text-blue-900">$ 0,00</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="p-3 border border-slate-400 text-xs flex flex-col justify-between bg-slate-50">
                     <div>
-                        <p><b>Recibí la suma de:</b> <span id="rec-neto-letras" class="italic">Un millón ochocientos veintidós mil cuatrocientos quince con 15/100 pesos</span></p>
-                        <p class="mt-1"><b>Depositado en:</b> Banco <span id="rec-banco-deposito">BNA</span> - Cta Cte N° <span id="rec-cuenta-deposito">458129/0</span></p>
+                        <p><b>Recibí la suma de:</b> <span id="rec-neto-letras" class="italic">—</span></p>
+                        <p class="mt-1"><b>Depositado en:</b> Banco <span id="rec-banco-deposito">—</span> - Cta Cte N° <span id="rec-cuenta-deposito">—</span></p>
                     </div>
-                    <div class="mt-4 pt-2 border-t border-slate-300 flex justify-between items-end">
-                        <div>
-                            <p>Lugar y Fecha:</p>
-                            <p class="font-semibold">Buenos Aires, 30 de JUNIO 2026</p>
-                        </div>
+                    <div class="mt-4 pt-2 border-t border-slate-300 flex justify-end items-end">
                         <div class="text-center w-36 border-t border-slate-800 pt-1">
                             <p class="text-[10px] text-slate-600">Firma del Empleado</p>
                         </div>
@@ -420,35 +433,100 @@
                 </div>
             </div>
 
-            <!-- Gráfico y Desglose de Costo Empleador (Del modelo exacto) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-300 pt-3">
-                <div class="md:col-col-span-1 flex flex-col items-center justify-center">
-                    <p class="text-[10px] font-bold text-slate-700 mb-1">Distribución del Costo Total</p>
-                    <div class="w-36 h-36">
-                        <canvas id="costoChart"></canvas>
-                    </div>
-                </div>
-                <div class="md:col-span-2 text-[10px]">
-                    <p class="font-bold text-slate-800 border-b pb-1 mb-1">Detalle de la composición salarial y costos</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <p class="font-semibold">Total Costo Sindical: <span id="det-sindical-total">$ 0,00</span></p>
-                            <p>- Empleador: <span id="det-sindical-emp">$ 0,00</span></p>
-                            <p>- Trabajador: <span id="det-sindical-trab">$ 0,00</span></p>
-                            <p class="font-semibold mt-1">Total Seguridad Social (Jubilación): <span id="det-seg-social-total">$ 0,00</span></p>
-                            <p>- Empleador (SIPA): <span id="det-seg-social-emp">$ 0,00</span></p>
-                            <p>- Trabajador (11%): <span id="det-seg-social-trab">$ 0,00</span></p>
+            <!-- Desglose Costo Empleador (ULTRA-LIGHT. Sin canvas. Solo tablas + barras CSS) -->
+            <div class="border-t border-slate-300 pt-3 text-[10px]">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
+                    <!-- Columna Izquierda (5/12): Gráfico TORTA SVG DONUT + leyenda (0 librerías). -->
+                    <div class="md:col-span-5">
+                        <p class="font-bold text-slate-800 border-b border-slate-400 pb-1 mb-2">Distribución del Costo Total</p>
+                        <div class="flex items-start gap-3 flex-row">
+                            <!-- DONUT SVG: r=70 stroke=30. Círculos superpuestos stroke-dasharray. -->
+                            <svg viewBox="0 0 200 200" class="w-[170px] h-[170px] flex-shrink-0" role="img" aria-label="Distribución del costo">
+                                <!-- círculo base fondo -->
+                                <circle cx="100" cy="100" r="70" fill="none" stroke="#f1f5f9" stroke-width="30"></circle>
+                                <!-- Slice 1: Neto (azul) -->
+                                <circle id="dist-svg-circle-1" cx="100" cy="100" r="70" fill="none" stroke="#2563eb" stroke-width="30"
+                                    stroke-dasharray="0 439.823" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+                                <!-- Slice 2: Jubilación (rojo) -->
+                                <circle id="dist-svg-circle-2" cx="100" cy="100" r="70" fill="none" stroke="#dc2626" stroke-width="30"
+                                    stroke-dasharray="0 439.823" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+                                <!-- Slice 3: Obra Social (verde) -->
+                                <circle id="dist-svg-circle-3" cx="100" cy="100" r="70" fill="none" stroke="#16a34a" stroke-width="30"
+                                    stroke-dasharray="0 439.823" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+                                <!-- Slice 4: PAMI (naranja) -->
+                                <circle id="dist-svg-circle-4" cx="100" cy="100" r="70" fill="none" stroke="#ea580c" stroke-width="30"
+                                    stroke-dasharray="0 439.823" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+                                <!-- Slice 5: Sindical (ambar) -->
+                                <circle id="dist-svg-circle-5" cx="100" cy="100" r="70" fill="none" stroke="#f59e0b" stroke-width="30"
+                                    stroke-dasharray="0 439.823" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+                                <!-- Slice 6: ART (cyan) -->
+                                <circle id="dist-svg-circle-6" cx="100" cy="100" r="70" fill="none" stroke="#0891b2" stroke-width="30"
+                                    stroke-dasharray="0 439.823" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+                                <!-- Centro Etiqueta Neto -->
+                                <text x="100" y="98" text-anchor="middle" class="fill-slate-700" font-size="12" font-weight="700">Neto</text>
+                                <text id="dist-center-neto" x="100" y="115" text-anchor="middle" class="fill-slate-900" font-size="13" font-weight="700">$ 0,00</text>
+                                <text id="dist-center-pct" x="100" y="132" text-anchor="middle" class="fill-slate-500" font-size="11">0.0%</text>
+                            </svg>
+                            <!-- Leyenda HTML al lado (sin createElement, texto fijo + spans IDs) -->
+                            <table class="w-full border-separate border-spacing-y-1 text-[10px]">
+                                <tbody>
+                                    <tr>
+                                        <td class="pr-1"><span class="inline-block w-3 h-3 rounded-sm" style="background-color:#2563eb"></span> <span id="dist-1-lbl">Sueldo Neto</span></td>
+                                        <td class="pr-1 text-right"><span id="dist-1-val">$ 0,00</span></td>
+                                        <td class="pl-1 text-right text-slate-500"><span id="dist-1-pct">0.0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pr-1"><span class="inline-block w-3 h-3 rounded-sm" style="background-color:#dc2626"></span> <span id="dist-2-lbl">Jubilación (SIPA + aporte)</span></td>
+                                        <td class="pr-1 text-right"><span id="dist-2-val">$ 0,00</span></td>
+                                        <td class="pl-1 text-right text-slate-500"><span id="dist-2-pct">0.0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pr-1"><span class="inline-block w-3 h-3 rounded-sm" style="background-color:#16a34a"></span> <span id="dist-3-lbl">Obra Social (Emp + Trab)</span></td>
+                                        <td class="pr-1 text-right"><span id="dist-3-val">$ 0,00</span></td>
+                                        <td class="pl-1 text-right text-slate-500"><span id="dist-3-pct">0.0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pr-1"><span class="inline-block w-3 h-3 rounded-sm" style="background-color:#ea580c"></span> <span id="dist-4-lbl">INSSJP / PAMI</span></td>
+                                        <td class="pr-1 text-right"><span id="dist-4-val">$ 0,00</span></td>
+                                        <td class="pl-1 text-right text-slate-500"><span id="dist-4-pct">0.0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pr-1"><span class="inline-block w-3 h-3 rounded-sm" style="background-color:#f59e0b"></span> <span id="dist-5-lbl">Costo Sindical (Sind + FSP)</span></td>
+                                        <td class="pr-1 text-right"><span id="dist-5-val">$ 0,00</span></td>
+                                        <td class="pl-1 text-right text-slate-500"><span id="dist-5-pct">0.0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pr-1"><span class="inline-block w-3 h-3 rounded-sm" style="background-color:#0891b2"></span> <span id="dist-6-lbl">ART + Seguros</span></td>
+                                        <td class="pr-1 text-right"><span id="dist-6-val">$ 0,00</span></td>
+                                        <td class="pl-1 text-right text-slate-500"><span id="dist-6-pct">0.0%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div>
-                            <p class="font-semibold">Total Costo INSSJP (PAMI/Ley 19.032): <span id="det-inssjp-total">$ 0,00</span></p>
-                            <p>- Empleador: <span id="det-inssjp-emp">$ 0,00</span></p>
-                            <p>- Trabajador (3%): <span id="det-inssjp-trab">$ 0,00</span></p>
-                            <p class="font-semibold mt-1">Total Obra Social: <span id="det-obra-social-total">$ 0,00</span></p>
-                            <p>- Empleador (6%): <span id="det-obra-social-emp">$ 0,00</span> | Trabajador (3%): <span id="det-obra-social-trab">$ 0,00</span></p>
-                            <p class="font-semibold mt-1">Total ART + Seguros: <span id="det-art-total">$ 0,00</span></p>
-                        </div>
                     </div>
-                    <p class="text-[9px] text-slate-500 italic mt-2">Nota: Seguridad social del empleador incluye SIPA, Fondo Nacional de Empleo y Asignaciones Familiares. Modelo Ley 20.744 Anexo III Dec. 407.</p>
+                    <!-- Columna Derecha (7/12): Totales Emp/Trab existentes. Los IDs se conservan (compat) -->
+                    <div class="md:col-span-7">
+                        <p class="font-bold text-slate-800 border-b border-slate-400 pb-1 mb-2">Detalle de la composición salarial y costos</p>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                            <div>
+                                <p class="font-semibold">Total Costo Sindical: <span id="det-sindical-total">$ 0,00</span></p>
+                                <p>- Empleador: <span id="det-sindical-emp">$ 0,00</span></p>
+                                <p>- Trabajador: <span id="det-sindical-trab">$ 0,00</span></p>
+                                <p class="font-semibold mt-1">Total Seguridad Social (Jubilación): <span id="det-seg-social-total">$ 0,00</span></p>
+                                <p>- Empleador (SIPA): <span id="det-seg-social-emp">$ 0,00</span></p>
+                                <p>- Trabajador (11%): <span id="det-seg-social-trab">$ 0,00</span></p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Total Costo INSSJP (PAMI/Ley 19.032): <span id="det-inssjp-total">$ 0,00</span></p>
+                                <p>- Empleador: <span id="det-inssjp-emp">$ 0,00</span></p>
+                                <p>- Trabajador (3%): <span id="det-inssjp-trab">$ 0,00</span></p>
+                                <p class="font-semibold mt-1">Total Obra Social: <span id="det-obra-social-total">$ 0,00</span></p>
+                                <p>- Empleador (6%): <span id="det-obra-social-emp">$ 0,00</span> | Trabajador (3%): <span id="det-obra-social-trab">$ 0,00</span></p>
+                                <p class="font-semibold mt-1">Total ART + Seguros: <span id="det-art-total">$ 0,00</span></p>
+                            </div>
+                        </div>
+                        <p class="text-[9px] text-slate-500 italic mt-2 leading-tight">Nota: Seguridad social del empleador incluye SIPA, Fondo Nacional de Empleo y Asignaciones Familiares. Modelo Ley 20.744 Anexo III Dec. 407.</p>
+                    </div>
                 </div>
             </div>
 
@@ -457,127 +535,13 @@
     </main>
 
     <script>
-        // Datos de ejemplo precargados (se activan SOLO al hacer clic en el botón correspondiente)
-        const EMPLEADOS_EJEMPLO = [
-            {
-                id: "21", legajo: "21",
-                nombre: "GONZALEZ, JUAN CARLOS",
-                ingreso: "10/12/2015", antiguedad: "10 años",
-                categoria: "Docente de Grado",
-                cuil: "20-11111111-3", banco: "BNA", cuenta: "458129/0",
-                periodoAportes: "may-26", fechaAportes: "12/6/2026",
-                sueldoBruto: 2226565.41, costoTotalEmpleador: 2860653.50,
-                contribuciones: [
-                    { concepto: "ART + FFEP ($1827)", unidad: "3.00%", base: 2226565.41, monto: 68623.96 },
-                    { concepto: "Contribución Jubilación / SIPA", unidad: "18.00%", base: 1991559.89, monto: 358480.78 },
-                    { concepto: "Contribución Obra Social", unidad: "6.00%", base: 2226565.41, monto: 133593.92 },
-                    { concepto: "Seguro de Vida Obligatorio", unidad: "424.62", base: 424.62, monto: 424.62 },
-                    { concepto: "Contribución OSECAC (Sindical Patronal)", unidad: "28000.00", base: 28000.00, monto: 28000.00 },
-                    { concepto: "Contribución INACAP", unidad: "5567.94", base: 5567.94, monto: 5567.94 },
-                    { concepto: "Seguro de Retiro La estrella", unidad: "1.60%", base: 2012065.41, monto: 32193.05 },
-                    { concepto: "Seguro de Vida CCT 130/75", unidad: "7203.81", base: 7203.81, monto: 7203.81 }
-                ],
-                conceptos: [
-                    { tipo: "REMUNERATIVO", concepto: "Sueldo básico", unidad: "30", base: 1125631.00, rem: 1125631.00, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "Antigüedad (10%)", unidad: "10%", base: 1125631.00, rem: 112563.10, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "Presentismo", unidad: "8.333%", base: 1238194.10, rem: 103182.84, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 (Aguinaldo)", unidad: "181 días", base: 3705.46, rem: 670688.47, norem: 0, desc: 0 },
-                    { tipo: "NO_REMUNERATIVO", concepto: "Incremento No Remunerativo-Acuerdo Abril 2026", unidad: "30", base: 100000.00, rem: 0, norem: 100000.00, desc: 0 },
-                    { tipo: "NO_REMUNERATIVO", concepto: "Antigüedad-Incremento No Remunerativo", unidad: "10%", base: 100000.00, rem: 0, norem: 10000.00, desc: 0 },
-                    { tipo: "NO_REMUNERATIVO", concepto: "Presentismo-Incremento No Remunerativo", unidad: "8.333%", base: 110000.00, rem: 0, norem: 9166.67, desc: 0 },
-                    { tipo: "NO_REMUNERATIVO", concepto: "Recomposición No Remunerativo", unidad: "30", base: 20000.00, rem: 0, norem: 20000.00, desc: 0 },
-                    { tipo: "NO_REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 S/acuerdos no remunerativos", unidad: "181 días", base: 2012065.41, rem: 0, norem: 71500.00, desc: 0 },
-                    { tipo: "DESCUENTO", concepto: "Jubilación (11%)", unidad: "11%", base: 2012065.41, rem: 0, norem: 0, desc: 221327.20 },
-                    { tipo: "DESCUENTO", concepto: "Ley 19.032 INSSJP / PAMI (3%)", unidad: "3%", base: 2012065.41, rem: 0, norem: 0, desc: 60361.96 },
-                    { tipo: "DESCUENTO", concepto: "Obra Social OSECAC (3%)", unidad: "3%", base: 2226565.41, rem: 0, norem: 0, desc: 66796.96 },
-                    { tipo: "DESCUENTO", concepto: "Aporte Sindical (2%)", unidad: "2%", base: 2226565.41, rem: 0, norem: 0, desc: 44531.31 },
-                    { tipo: "DESCUENTO", concepto: "FAECYS (0.5%)", unidad: "0.5%", base: 2226565.41, rem: 0, norem: 0, desc: 11132.83 }
-                ]
-            },
-            {
-                id: "22", legajo: "22",
-                nombre: "MARTINEZ, MARIA ELENA",
-                ingreso: "15/03/2018", antiguedad: "8 años",
-                categoria: "Preceptora",
-                cuil: "27-22222222-4", banco: "GALICIA", cuenta: "771234/8",
-                periodoAportes: "may-26", fechaAportes: "12/6/2026",
-                sueldoBruto: 1850000.00, costoTotalEmpleador: 2380000.00,
-                contribuciones: [
-                    { concepto: "ART + FFEP", unidad: "3.00%", base: 1850000.00, monto: 55500.00 },
-                    { concepto: "Contribución Jubilación / SIPA", unidad: "18.00%", base: 1650000.00, monto: 297000.00 },
-                    { concepto: "Contribución Obra Social", unidad: "6.00%", base: 1850000.00, monto: 111000.00 },
-                    { concepto: "Contribución Sindical Patronal", unidad: "1.5%", base: 1850000.00, monto: 27750.00 }
-                ],
-                conceptos: [
-                    { tipo: "REMUNERATIVO", concepto: "Sueldo básico", unidad: "30", base: 1000000.00, rem: 1000000.00, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "Antigüedad (8%)", unidad: "8%", base: 1000000.00, rem: 80000.00, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 (Aguinaldo)", unidad: "181 días", base: 3000.00, rem: 540000.00, norem: 0, desc: 0 },
-                    { tipo: "NO_REMUNERATIVO", concepto: "Fondo No Remunerativo Docente", unidad: "30", base: 76666.67, rem: 0, norem: 230000.00, desc: 0 },
-                    { tipo: "DESCUENTO", concepto: "Jubilación (11%)", unidad: "11%", base: 1620000.00, rem: 0, norem: 0, desc: 178200.00 },
-                    { tipo: "DESCUENTO", concepto: "Ley 19.032 INSSJP / PAMI (3%)", unidad: "3%", base: 1620000.00, rem: 0, norem: 0, desc: 48600.00 },
-                    { tipo: "DESCUENTO", concepto: "Obra Social (3%)", unidad: "3%", base: 1850000.00, rem: 0, norem: 0, desc: 55500.00 },
-                    { tipo: "DESCUENTO", concepto: "Aporte Sindical (2%)", unidad: "2%", base: 1850000.00, rem: 0, norem: 0, desc: 37000.00 }
-                ]
-            },
-            {
-                id: "23", legajo: "23",
-                nombre: "FERNANDEZ, ROBERTO DANIEL",
-                ingreso: "01/08/2020", antiguedad: "6 años",
-                categoria: "Profesor de Matemática",
-                cuil: "20-33333333-5", banco: "MACRO", cuenta: "998877/3",
-                periodoAportes: "may-26", fechaAportes: "12/6/2026",
-                sueldoBruto: 1620000.00, costoTotalEmpleador: 2080000.00,
-                contribuciones: [
-                    { concepto: "ART + FFEP", unidad: "3.00%", base: 1620000.00, monto: 48600.00 },
-                    { concepto: "Contribución Jubilación / SIPA", unidad: "18.00%", base: 1400000.00, monto: 252000.00 },
-                    { concepto: "Contribución Obra Social", unidad: "6.00%", base: 1620000.00, monto: 97200.00 },
-                    { concepto: "Contribución Sindical Patronal", unidad: "1.5%", base: 1620000.00, monto: 24300.00 }
-                ],
-                conceptos: [
-                    { tipo: "REMUNERATIVO", concepto: "Sueldo básico", unidad: "30", base: 900000.00, rem: 900000.00, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "Antigüedad (6%)", unidad: "6%", base: 900000.00, rem: 54000.00, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "Horas Cátedra Extra", unidad: "12hs", base: 18000.00, rem: 216000.00, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 (Aguinaldo)", unidad: "181 días", base: 2646.41, rem: 450000.00, norem: 0, desc: 0 },
-                    { tipo: "NO_REMUNERATIVO", concepto: "Compensación No Remunerativa", unidad: "30", base: 666.67, rem: 0, norem: 20000.00, desc: 0 },
-                    { tipo: "DESCUENTO", concepto: "Jubilación (11%)", unidad: "11%", base: 1170000.00, rem: 0, norem: 0, desc: 128700.00 },
-                    { tipo: "DESCUENTO", concepto: "Ley 19.032 INSSJP / PAMI (3%)", unidad: "3%", base: 1170000.00, rem: 0, norem: 0, desc: 35100.00 },
-                    { tipo: "DESCUENTO", concepto: "Obra Social (3%)", unidad: "3%", base: 1620000.00, rem: 0, norem: 0, desc: 48600.00 },
-                    { tipo: "DESCUENTO", concepto: "Aporte Sindical (2%)", unidad: "2%", base: 1620000.00, rem: 0, norem: 0, desc: 32400.00 }
-                ]
-            },
-            {
-                id: "24", legajo: "24",
-                nombre: "LOPEZ, ANA CAROLINA",
-                ingreso: "10/02/2022", antiguedad: "4 años",
-                categoria: "Bibliotecaria",
-                cuil: "27-44444444-6", banco: "SANTANDER", cuenta: "552211/9",
-                periodoAportes: "may-26", fechaAportes: "12/6/2026",
-                sueldoBruto: 1480000.00, costoTotalEmpleador: 1895000.00,
-                contribuciones: [
-                    { concepto: "ART + FFEP", unidad: "3.00%", base: 1480000.00, monto: 44400.00 },
-                    { concepto: "Contribución Jubilación / SIPA", unidad: "18.00%", base: 1280000.00, monto: 230400.00 },
-                    { concepto: "Contribución Obra Social", unidad: "6.00%", base: 1480000.00, monto: 88800.00 },
-                    { concepto: "Contribución Sindical Patronal", unidad: "1.5%", base: 1480000.00, monto: 22200.00 }
-                ],
-                conceptos: [
-                    { tipo: "REMUNERATIVO", concepto: "Sueldo básico", unidad: "30", base: 820000.00, rem: 820000.00, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "Antigüedad (4%)", unidad: "4%", base: 820000.00, rem: 32800.00, norem: 0, desc: 0 },
-                    { tipo: "REMUNERATIVO", concepto: "SAC 1 CUOTA 2026 (Aguinaldo)", unidad: "181 días", base: 2358.56, rem: 427200.00, norem: 0, desc: 0 },
-                    { tipo: "NO_REMUNERATIVO", concepto: "Compensación No Remunerativa", unidad: "30", base: 666.67, rem: 0, norem: 200000.00, desc: 0 },
-                    { tipo: "DESCUENTO", concepto: "Jubilación (11%)", unidad: "11%", base: 852800.00, rem: 0, norem: 0, desc: 93808.00 },
-                    { tipo: "DESCUENTO", concepto: "Ley 19.032 INSSJP / PAMI (3%)", unidad: "3%", base: 852800.00, rem: 0, norem: 0, desc: 25584.00 },
-                    { tipo: "DESCUENTO", concepto: "Obra Social (3%)", unidad: "3%", base: 1480000.00, rem: 0, norem: 0, desc: 44400.00 },
-                    { tipo: "DESCUENTO", concepto: "Aporte Sindical (2%)", unidad: "2%", base: 1480000.00, rem: 0, norem: 0, desc: 29600.00 }
-                ]
-            }
-        ];
+        // Eliminados datos de ejemplo EMPLEADOS_EJEMPLO (consigna user): solo datos reales por Excel.
 
         // Estado inicial: SIN DATOS CARGADOS (la app arranca vacía)
-        let empleadosData = [];
-
-        let selectedEmpIndex = 0;
-        let costoChartInstance = null;
-        let filteredIndices = [];
+        // GLOBALES: El externo render-light-core.js lee window.empleadosData / window.selectedEmpIndex → compatibilidad.
+        let empleadosData = window.empleadosData = [];
+        let selectedEmpIndex = window.selectedEmpIndex = 0;
+        let filteredIndices = window.filteredIndices = [];
 
         // ============ AUTOGUARDADO EN LOCALSTORAGE (persistencia sin servidor) ============
         const LS_KEY = 'id3studio_recibos_data_v1';
@@ -615,7 +579,6 @@
             document.getElementById('search-employee').value = '';
             document.getElementById('input-periodo').value = 'Junio 2026 (1er SAC)';
             document.getElementById('filter-categoria').value = '';
-            document.getElementById('filter-banco').value = '';
             actualizarBadgeEstado('vacio');
             populateFilterOptions();
             populateSelectEmployee();
@@ -625,7 +588,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            initChart();
             setupDropZone();
             setupSearchBar();
             setupFilters();
@@ -642,6 +604,7 @@
                 limpiarRecibo();
             } else {
                 filteredIndices = empleadosData.map((_, i) => i);
+                _syncGlobals();
                 populateFilterOptions();
                 populateSelectEmployee();
                 updateSearchCount();
@@ -649,6 +612,13 @@
             }
         });
 
+        // GESTIÓN DE ESTADO / SINCRONIZACIÓN GLOBALES (para render-light-core.js)
+        // El externo lee window.empleadosData / window.selectedEmpIndex → hay que mantenerlos a tono.
+        function _syncGlobals() {
+            window.empleadosData = empleadosData;
+            window.filteredIndices = filteredIndices;
+            window.selectedEmpIndex = selectedEmpIndex;
+        }
         // ============================================================
         // GESTIÓN DE ESTADO / BADGE SUPERIOR DINÁMICO
         // ============================================================
@@ -676,58 +646,30 @@
             }
         }
 
-        // ============================================================
-        // CARGAR DATOS DE EJEMPLO (cuando el usuario hace clic en el botón)
-        // ============================================================
-        function cargarDatosEjemplo() {
-            empleadosData = JSON.parse(JSON.stringify(EMPLEADOS_EJEMPLO));
-            selectedEmpIndex = 0;
-            document.getElementById('file-name').textContent = '';
-            document.getElementById('search-employee').value = '';
-            document.getElementById('filter-categoria').value = '';
-            document.getElementById('filter-banco').value = '';
-            filteredIndices = empleadosData.map((_, i) => i);
-            actualizarBadgeEstado('ejemplo');
-            sincronizarEmailsMapConEmpleados();
-            populateFilterOptions();
-            populateSelectEmployee();
-            updateSearchCount();
-            selectEmployeeByGlobalIndex(0);
-            guardarEnLocalStorage();
-        }
+        // (datos de ejemplo eliminados consigna user: solo ingesta Excel real)
 
         // ============================================================
-        // FILTROS AVANZADOS: Categoría + Banco + Limpiar / Limpiar autoguardado
+        // FILTROS AVANZADOS: Categoría + Limpiar / Limpiar autoguardado
         // ============================================================
         function setupFilters() {
             document.getElementById('filter-categoria').addEventListener('change', () => filterEmployees(document.getElementById('search-employee').value));
-            document.getElementById('filter-banco').addEventListener('change', () => filterEmployees(document.getElementById('search-employee').value));
             document.getElementById('btn-clear-filters').addEventListener('click', () => {
                 document.getElementById('search-employee').value = '';
                 document.getElementById('filter-categoria').value = '';
-                document.getElementById('filter-banco').value = '';
                 filterEmployees('');
             });
             document.getElementById('btn-wipe-data').addEventListener('click', wipeLocalStorageYUI);
         }
         function populateFilterOptions() {
             const selCat = document.getElementById('filter-categoria');
-            const selBan = document.getElementById('filter-banco');
             const valorPrevioCat = selCat.value;
-            const valorPrevioBan = selBan.value;
             selCat.innerHTML = '<option value="">Todas las categorías</option>';
-            selBan.innerHTML = '<option value="">Todos los bancos</option>';
             const cats = new Set();
-            const bancs = new Set();
-            empleadosData.forEach(emp => { cats.add(emp.categoria || 'Sin categoría'); bancs.add(emp.banco || 'Sin banco'); });
+            empleadosData.forEach(emp => { cats.add(emp.categoria || 'Sin categoría'); });
             [...cats].sort((a,b) => (a+'').localeCompare(b+'')).forEach(c => {
                 const o = document.createElement('option'); o.value = c; o.textContent = c; selCat.appendChild(o);
             });
-            [...bancs].sort((a,b) => (a+'').localeCompare(b+'')).forEach(b => {
-                const o = document.createElement('option'); o.value = b; o.textContent = b; selBan.appendChild(o);
-            });
             if ([...cats].includes(valorPrevioCat)) selCat.value = valorPrevioCat;
-            if ([...bancs].includes(valorPrevioBan)) selBan.value = valorPrevioBan;
         }
 
         // ============================================================
@@ -736,16 +678,40 @@
         function limpiarRecibo() {
             const camposTexto = ['rec-nombre','rec-legajo','rec-bruto','rec-bruto-2','rec-antiguedad','rec-ingreso','rec-categoria','rec-cuil','rec-banco','rec-banco-deposito','rec-cuenta-deposito','rec-periodo-aportes','rec-fecha-aportes','rec-costo-total','rec-mes-ano','rec-subtotal-contrib','rec-total-rem','rec-total-norem','rec-total-desc','rec-sueldo-neto','rec-neto-letras'];
             camposTexto.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; });
-            const tbContrib = document.getElementById('tbody-contribuciones'); if (tbContrib) tbContrib.innerHTML = '';
-            const tbConc = document.getElementById('tbody-conceptos'); if (tbConc) tbConc.innerHTML = '';
-            const summary = document.getElementById('emp-summary');
-            if (summary) summary.innerHTML = '<span class="text-slate-400 italic text-xs">Cargue un archivo Excel o haga clic en "Cargar datos de ejemplo"</span>';
-            const camposDetalle = ['det-sindical-total','det-sindical-emp','det-sindical-trab','det-seg-social-total','det-seg-social-emp','det-seg-social-trab','det-inssjp-total','det-inssjp-emp','det-inssjp-trab','det-obra-social-total','det-obra-social-emp','det-obra-social-trab','det-art-total'];
-            camposDetalle.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = formatMoney(0); });
-            if (costoChartInstance) {
-                costoChartInstance.data.datasets[0].data = [0, 0, 0, 0, 0, 0];
-                costoChartInstance.update();
+            // Reset CONTRIBUCIONES (6 filas FIJAS IDs contrib-1..6, NO tocar innerHTML para no destruirlas)
+            for (let i = 1; i <= 6; i++) {
+                const cc = document.getElementById('contrib-'+i+'-c'); if (cc) cc.textContent = '';
+                const cu = document.getElementById('contrib-'+i+'-u'); if (cu) cu.textContent = '';
+                const cb = document.getElementById('contrib-'+i+'-b'); if (cb) cb.textContent = '';
+                const cm = document.getElementById('contrib-'+i+'-m'); if (cm) cm.textContent = '';
             }
+            // Reset CONCEPTOS (28 filas FIJAS IDs conc-1..28, NO tocar innerHTML para no destruirlas)
+            for (let i = 1; i <= 28; i++) {
+                const cc = document.getElementById('conc-'+i+'-c'); if (cc) cc.textContent = '';
+                const cu = document.getElementById('conc-'+i+'-u'); if (cu) cu.textContent = '';
+                const cb = document.getElementById('conc-'+i+'-b'); if (cb) cb.textContent = '';
+                const cr = document.getElementById('conc-'+i+'-r'); if (cr) cr.textContent = '';
+                const cnr= document.getElementById('conc-'+i+'-nr');if (cnr)cnr.textContent = '';
+                const cd = document.getElementById('conc-'+i+'-d'); if (cd) cd.textContent = '';
+            }
+            const summary = document.getElementById('emp-summary');
+            if (summary) summary.innerHTML = '<span class="text-slate-400 italic text-xs">Cargue un archivo Excel para ver los datos del empleado</span>';
+            const camposDetalle = ['det-sindical-total','det-sindical-emp','det-sindical-trab','det-seg-social-total','det-seg-social-emp','det-seg-social-trab','det-inssjp-total','det-inssjp-emp','det-inssjp-trab','det-obra-social-total','det-obra-social-emp','det-obra-social-trab','det-art-total'];
+            camposDetalle.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = formatearMoneda ? formatearMoneda(0) : '$ 0,00'; });
+            // Reset TORTA SVG DONUT (6 circles + centro) — antes eran barras CSS, donut SVG
+            const DONUT_CIRC = 439.822971502571;
+            for (let i = 1; i <= 6; i++) {
+                const circ = document.getElementById('dist-svg-circle-' + i);
+                if (circ) {
+                    circ.setAttribute('stroke-dasharray', '0 ' + DONUT_CIRC);
+                    circ.setAttribute('stroke-dashoffset', '0');
+                }
+                const lbl = document.getElementById('dist-' + i + '-lbl'); if (lbl) lbl.textContent = '';
+                const val = document.getElementById('dist-' + i + '-val'); if (val) val.textContent = formatearMoneda ? formatearMoneda(0) : '$ 0,00';
+                const pct = document.getElementById('dist-' + i + '-pct'); if (pct) pct.textContent = '0.0 %';
+            }
+            const dcNeto = document.getElementById('dist-center-neto'); if (dcNeto) dcNeto.textContent = '$ 0,00';
+            const dcPct  = document.getElementById('dist-center-pct');  if (dcPct)  dcPct.textContent  = '0.0 %';
         }
 
         function setupSearchBar() {
@@ -756,12 +722,10 @@
         function filterEmployees(query) {
             const q = (query || '').toLowerCase().trim();
             const catFilter = (document.getElementById('filter-categoria') || {}).value || '';
-            const banFilter = (document.getElementById('filter-banco') || {}).value || '';
             filteredIndices = empleadosData
                 .map((emp, idx) => ({ emp, idx }))
                 .filter(({ emp }) => {
                     if (catFilter && (emp.categoria || '') !== catFilter) return false;
-                    if (banFilter && (emp.banco || '') !== banFilter) return false;
                     if (!q) return true;
                     const nombre = (emp.nombre || '').toLowerCase();
                     const legajo = String(emp.legajo || '').toLowerCase();
@@ -787,54 +751,73 @@
                 el.textContent = 'Sin empleados cargados';
             } else {
                 const cat = document.getElementById('filter-categoria').value;
-                const ban = document.getElementById('filter-banco').value;
                 const txt = [];
                 if (cat) txt.push(`cat: ${cat}`);
-                if (ban) txt.push(`banco: ${ban}`);
                 const sufijo = txt.length ? ` [filtros: ${txt.join(', ')}]` : '';
                 el.textContent = `Mostrando ${shown} de ${total} empleados${sufijo}`;
             }
         }
 
         function populateSelectEmployee() {
+            // ULTRA-LIGHT: DocumentFragment + 1 solo appendChild (no 200 reflows).
+            // value = globalIdx numérico (O(1)). Sin dataset.emp redundante (100KB+ ahorro memoria).
             const select = document.getElementById('select-employee');
-            select.innerHTML = '';
+            // Quitar NODOS hijos existentes (no innerHTML = no parseo nuevo)
+            while (select.firstChild) select.removeChild(select.firstChild);
+            const df = document.createDocumentFragment();
+            let def = null;
             if (empleadosData.length === 0) {
-                const opt = document.createElement('option');
-                opt.value = -1;
-                opt.textContent = 'Sin empleados cargados';
-                select.appendChild(opt);
-                return;
+                def = document.createElement('option');
+                def.value = -1; def.textContent = 'Sin empleados cargados';
+                df.appendChild(def);
+            } else if (filteredIndices.length === 0) {
+                def = document.createElement('option');
+                def.value = -1; def.textContent = 'Sin coincidencias';
+                df.appendChild(def);
+            } else {
+                if (filteredIndices.indexOf(selectedEmpIndex) === -1) {
+                    selectedEmpIndex = filteredIndices[0];
+                }
+                _syncGlobals();
+                const sel = Number(selectedEmpIndex);
+                for (let i = 0; i < filteredIndices.length; i++) {
+                    const globalIdx = filteredIndices[i];
+                    const emp = empleadosData[globalIdx];
+                    if (!emp) continue;
+                    const opt = document.createElement('option');
+                    opt.value = String(globalIdx);
+                    // label compacto: Legajo N - APELLIDO, NOMBRE (Categoría) — mínima concatenación
+                    const nom = (emp.nombre && emp.nombre !== 'EMPLEADO 1') ? emp.nombre : ('EMPLEADO ' + globalIdx);
+                    opt.textContent = 'Legajo ' + (emp.legajo || (globalIdx+1)) + ' - ' + nom + (emp.categoria ? ' (' + emp.categoria + ')' : '');
+                    if (globalIdx === sel) opt.selected = true;
+                    df.appendChild(opt);
+                }
             }
-            if (filteredIndices.length === 0) {
-                const opt = document.createElement('option');
-                opt.value = -1;
-                opt.textContent = 'Sin coincidencias';
-                select.appendChild(opt);
-                return;
-            }
-            if (filteredIndices.indexOf(selectedEmpIndex) === -1) {
-                selectedEmpIndex = filteredIndices[0];
-            }
-            filteredIndices.forEach((globalIdx) => {
-                const emp = empleadosData[globalIdx];
-                const opt = document.createElement('option');
-                opt.value = globalIdx;
-                opt.textContent = `Legajo ${emp.legajo} - ${emp.nombre} (${emp.categoria})`;
-                select.appendChild(opt);
-            });
-            select.value = String(selectedEmpIndex);
+            select.appendChild(df);
             select.onchange = (e) => selectEmployeeByGlobalIndex(parseInt(e.target.value));
         }
 
         function selectEmployeeByGlobalIndex(globalIdx) {
             if (globalIdx < 0 || globalIdx >= empleadosData.length) return;
             selectedEmpIndex = globalIdx;
+            _syncGlobals();
             renderRecibo(globalIdx);
             const emp = empleadosData[globalIdx];
             const summary = document.getElementById('emp-summary');
-            const neto = calculateNetAndTotals(emp).neto;
-            summary.innerHTML = `<span class="font-semibold">${emp.categoria}</span><br><span>Neto: ${formatMoney(neto)} | Antig.: ${emp.antiguedad}</span>`;
+            if (summary) {
+                // Sin innerHTML. textContent directo + <br> previa vía childNodes si existen.
+                while (summary.firstChild) summary.removeChild(summary.firstChild);
+                const sp1 = document.createElement('span');
+                sp1.className = 'font-semibold';
+                sp1.textContent = emp.categoria || 'Sin categoría';
+                const br = document.createElement('br');
+                const sp2 = document.createElement('span');
+                const neto = emp.totalNeto || emp.neto || (emp.sueldoBruto || ((emp.totalRem||0)+(emp.totalNoRem||0))) - (emp.totalAportes || emp.totalDesc || 0);
+                sp2.textContent = 'Neto: ' + formatMoney(neto) + (emp.antiguedad ? ' | Antig.: ' + emp.antiguedad : '') + (emp.antigAM ? ' (' + emp.antigAM + ')' : '');
+                summary.appendChild(sp1);
+                summary.appendChild(br);
+                summary.appendChild(sp2);
+            }
         }
 
         function formatMoney(num) {
@@ -842,164 +825,52 @@
             return '$ ' + Number(num).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        function calculateNetAndTotals(emp) {
-            let totalRem = 0, totalNoRem = 0, totalDesc = 0, subtotalContrib = 0;
-            (emp.conceptos || []).forEach(c => {
-                totalRem += c.rem || 0; totalNoRem += c.norem || 0; totalDesc += c.desc || 0;
-            });
-            (emp.contribuciones || []).forEach(c => { subtotalContrib += c.monto || 0; });
-            return { totalRem, totalNoRem, totalDesc, subtotalContrib, neto: (totalRem + totalNoRem) - totalDesc };
-        }
-
-        function classifyCosts(emp) {
-            const descuentos = emp.conceptos ? emp.conceptos.filter(c => c.tipo === 'DESCUENTO') : [];
-            const contribuciones = emp.contribuciones || [];
-            const findMonto = (arr, patterns) => {
-                let total = 0;
-                arr.forEach(item => {
-                    const name = (item.concepto || '').toLowerCase();
-                    const isMatch = patterns.some(p => name.includes(p.toLowerCase()));
-                    if (isMatch) total += (item.monto !== undefined ? item.monto : 0) + (item.desc !== undefined ? item.desc : 0);
-                });
-                return total;
-            };
-
-            const jubTrab = findMonto(descuentos, ['jubilación', 'jubilacion', 'sipa']);
-            const jubEmp = findMonto(contribuciones, ['jubilación', 'jubilacion', 'sipa']);
-            const obraTrab = findMonto(descuentos, ['obra social', 'osecac']);
-            const obraEmp = findMonto(contribuciones, ['obra social', 'osecac']);
-            const pamiTrab = findMonto(descuentos, ['inssjp', 'pami', 'ley 19', '19.032']);
-            const pamiEmp = findMonto(contribuciones, ['inssjp', 'pami', 'ley 19']);
-            const sindTrab = findMonto(descuentos, ['sindical', 'sindicato', 'faecys', 'inacap']);
-            const sindEmp = findMonto(contribuciones, ['sindical', 'sindicato', 'faecys', 'inacap', 'osecac']);
-            const artTotal = findMonto(contribuciones, ['art', 'seguro', 'ffep']);
-
-            return {
-                jub: { trab: jubTrab, emp: jubEmp, total: jubTrab + jubEmp },
-                obra: { trab: obraTrab, emp: obraEmp, total: obraTrab + obraEmp },
-                pami: { trab: pamiTrab, emp: pamiEmp, total: pamiTrab + pamiEmp },
-                sind: { trab: sindTrab, emp: sindEmp, total: sindTrab + sindEmp },
-                art: artTotal
-            };
-        }
-
         function renderRecibo(index) {
+            // DELEGACIÓN AL RENDER ENGINE ULTRA-LIGHT (render-light-core.js)
+            // - Sin loops en hot path, sin innerHTML.
+            // - Si el script externo no cargó (file:// / CORS), usa el fallback inline númeroALetras / formatMoney existentes.
+            if (typeof window.renderReciboDirecto === 'function') {
+                window.renderReciboDirecto(index);
+                return;
+            }
+            // --------- FALLBACK INLINE (si el script externo no cargó) ---------
             const emp = empleadosData[index];
             if (!emp) return;
-
-            document.getElementById('rec-nombre').textContent = emp.nombre;
-            document.getElementById('rec-legajo').textContent = emp.legajo;
-            document.getElementById('rec-bruto').textContent = formatMoney(emp.sueldoBruto);
-            document.getElementById('rec-bruto-2').textContent = formatMoney(emp.sueldoBruto);
-            document.getElementById('rec-antiguedad').textContent = emp.antiguedad;
-            document.getElementById('rec-ingreso').textContent = emp.ingreso;
-            document.getElementById('rec-categoria').textContent = emp.categoria;
-            document.getElementById('rec-cuil').textContent = emp.cuil;
-            document.getElementById('rec-banco').textContent = emp.banco;
-            document.getElementById('rec-banco-deposito').textContent = emp.banco;
-            document.getElementById('rec-cuenta-deposito').textContent = emp.cuenta || 'N° según nómina';
-            document.getElementById('rec-periodo-aportes').textContent = emp.periodoAportes;
-            document.getElementById('rec-fecha-aportes').textContent = emp.fechaAportes;
-            document.getElementById('rec-costo-total').textContent = formatMoney(emp.costoTotalEmpleador);
-            document.getElementById('rec-mes-ano').textContent = getPeriodLabel();
-
-            const tbodyContrib = document.getElementById('tbody-contribuciones');
-            tbodyContrib.innerHTML = '';
-            const t = calculateNetAndTotals(emp);
-
-            (emp.contribuciones || []).forEach(c => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${c.concepto}</td><td class="text-center">${c.unidad}</td><td class="text-right">${formatMoney(c.base)}</td><td class="text-right">${formatMoney(c.monto)}</td>`;
-                tbodyContrib.appendChild(tr);
-            });
-            document.getElementById('rec-subtotal-contrib').textContent = formatMoney(t.subtotalContrib);
-
-            const tbodyConceptos = document.getElementById('tbody-conceptos');
-            tbodyConceptos.innerHTML = '';
-            (emp.conceptos || []).forEach(c => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${c.concepto}</td>
-                    <td class="text-center">${c.unidad}</td>
-                    <td class="text-right">${formatMoney(c.base)}</td>
-                    <td class="text-right font-medium">${c.rem ? formatMoney(c.rem) : ''}</td>
-                    <td class="text-right font-medium">${c.norem ? formatMoney(c.norem) : ''}</td>
-                    <td class="text-right font-medium text-red-600">${c.desc ? formatMoney(c.desc) : ''}</td>
-                `;
-                tbodyConceptos.appendChild(tr);
-            });
-
-            document.getElementById('rec-total-rem').textContent = formatMoney(t.totalRem);
-            document.getElementById('rec-total-norem').textContent = formatMoney(t.totalNoRem);
-            document.getElementById('rec-total-desc').textContent = formatMoney(t.totalDesc);
-            document.getElementById('rec-sueldo-neto').textContent = formatMoney(t.neto);
-            document.getElementById('rec-neto-letras').textContent = numeroALetras(t.neto);
-
-            updateChartAndDetails(t.neto, emp);
-            updatePeriodInRecibo(document.getElementById('input-periodo').value);
-        }
-
-        function initChart() {
-            const ctx = document.getElementById('costoChart').getContext('2d');
-            costoChartInstance = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Sueldo Neto', 'Jubilación', 'Obra Social', 'INSSJP/PAMI', 'Costo Sindical', 'ART + Seguros'],
-                    datasets: [{
-                        data: [0, 0, 0, 0, 0, 0],
-                        backgroundColor: ['#2563eb', '#dc2626', '#16a34a', '#ea580c', '#f59e0b', '#0891b2'],
-                        borderColor: '#ffffff',
-                        borderWidth: 1.5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => {
-                                    const label = ctx.label || '';
-                                    const val = formatMoney(ctx.parsed);
-                                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                                    const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : '0';
-                                    return `${label}: ${val} (${pct}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateChartAndDetails(neto, emp) {
-            const costs = classifyCosts(emp);
-            const chartData = [
-                Math.max(0, neto),
-                Math.max(0, costs.jub.total),
-                Math.max(0, costs.obra.total),
-                Math.max(0, costs.pami.total),
-                Math.max(0, costs.sind.total),
-                Math.max(0, costs.art)
-            ];
-            if (costoChartInstance) {
-                costoChartInstance.data.datasets[0].data = chartData;
-                costoChartInstance.update();
+            const $ = id => document.getElementById(id);
+            const $$ = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            $$('rec-nombre', emp.nombre || ((emp.apellido||'') + (emp.apellido && emp.nombre ? ', ' : '') + (emp.nombre||'')));
+            $$('rec-legajo', emp.legajo || '');
+            const bruto = emp.sueldoBruto || emp.bruto || (emp.totalRem || 0) + (emp.totalNoRem || 0);
+            const neto = emp.neto || emp.totalNeto || (emp.totalRem || 0) + (emp.totalNoRem || 0) - (emp.totalAportes || emp.totalDesc || 0);
+            $$('rec-bruto', formatMoney(bruto));
+            $$('rec-bruto-2', formatMoney(bruto));
+            $$('rec-antiguedad', emp.antiguedad || emp.antigAM || '');
+            $$('rec-ingreso', emp.ingreso || emp.fAlta || '');
+            $$('rec-categoria', emp.categoria || emp.descripcion || '');
+            $$('rec-cuil', emp.cuil || '');
+            $$('rec-banco', emp.banco || (emp.sitRev ? String(emp.sitRev) : 'Según nómina'));
+            if ($('rec-banco-deposito')) $('rec-banco-deposito').textContent = emp.banco || (emp.sitRev ? String(emp.sitRev) : 'Según nómina');
+            if ($('rec-cuenta-deposito')) $('rec-cuenta-deposito').textContent = emp.cuenta || 'N° según nómina';
+            $$('rec-periodo-aportes', emp.periodoAportes || emp.periodo || '');
+            $$('rec-fecha-aportes', emp.fechaAportes || (emp.periodo ? String(emp.periodo) : ''));
+            $$('rec-costo-total', formatMoney(emp.costoTotalEmpleador || (bruto + (emp.totalContribuciones || 0))));
+            $$('rec-mes-ano', getPeriodLabel());
+            $$('rec-subtotal-contrib', formatMoney(emp.totalContribuciones || (emp.contribSS||0)+(emp.contribOS||0)+(emp.contribART||0)+(emp.contribSVC||0)+(emp.contribFSP||0)));
+            $$('rec-total-rem', formatMoney(emp.totalRem || 0));
+            $$('rec-total-norem', formatMoney(emp.totalNoRem || 0));
+            $$('rec-total-desc', formatMoney(emp.totalAportes || emp.totalDesc || 0));
+            $$('rec-sueldo-neto', formatMoney(neto));
+            try { $$('rec-neto-letras', (window.numeroALetrasPesos ? window.numeroALetrasPesos(neto) : (numeroALetras ? numeroALetras(neto) : formatMoney(neto)))); } catch (e) { $$('rec-neto-letras', formatMoney(neto)); }
+            if (typeof updatePeriodInRecibo === 'function') try { updatePeriodInRecibo($('input-periodo') ? $('input-periodo').value : ''); } catch (e) {}
+            // Reset barras distribucion a cero inline (se renderizan OK si existe render-light-core.js)
+            for (let i = 1; i <= 6; i++) {
+                const b = $('dist-'+i+'-bar');
+                const p = $('dist-'+i+'-pct');
+                const v = $('dist-'+i+'-val');
+                if (b) b.style.width = '0%';
+                if (p) p.textContent = '0.0 %';
+                if (v) v.textContent = '$ 0,00';
             }
-            document.getElementById('det-sindical-total').textContent = formatMoney(costs.sind.total);
-            document.getElementById('det-sindical-emp').textContent = formatMoney(costs.sind.emp);
-            document.getElementById('det-sindical-trab').textContent = formatMoney(costs.sind.trab);
-            document.getElementById('det-seg-social-total').textContent = formatMoney(costs.jub.total);
-            document.getElementById('det-seg-social-emp').textContent = formatMoney(costs.jub.emp);
-            document.getElementById('det-seg-social-trab').textContent = formatMoney(costs.jub.trab);
-            document.getElementById('det-inssjp-total').textContent = formatMoney(costs.pami.total);
-            document.getElementById('det-inssjp-emp').textContent = formatMoney(costs.pami.emp);
-            document.getElementById('det-inssjp-trab').textContent = formatMoney(costs.pami.trab);
-            document.getElementById('det-obra-social-total').textContent = formatMoney(costs.obra.total);
-            document.getElementById('det-obra-social-emp').textContent = formatMoney(costs.obra.emp);
-            document.getElementById('det-obra-social-trab').textContent = formatMoney(costs.obra.trab);
-            document.getElementById('det-art-total').textContent = formatMoney(costs.art);
         }
 
         function getPeriodLabel() {
@@ -1074,9 +945,22 @@
                 if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
             });
             fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
-            document.getElementById('btn-load-demo').addEventListener('click', () => { cargarDatosEjemplo(); });
         }
 
+        function detectarHeaderRow(sheet) {
+            const aoa = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', blankrows: false });
+            const marcadores = ['CODIGO SERIALIZADOR','COD. SERIALIZADOR','CODIGO','CUIL','APELLIDO','NOMBRE','BASICO','TOTALREM'];
+            let bestIdx = 0, bestScore = -1;
+            for (let i = 0; i < Math.min(10, aoa.length); i++) {
+                const row = (aoa[i]||[]).map(c => String(c||'').trim().toUpperCase().replace(/\s+/g,' '));
+                let score = 0;
+                marcadores.forEach(m => { if (row.includes(m)) score++; });
+                const tieneLeg = row.some(c => c.includes('SERIALIZADOR')) || row.includes('CUIL') || row.includes('LEGAJO');
+                if (tieneLeg) score += 3;
+                if (score > bestScore) { bestScore = score; bestIdx = i; }
+            }
+            return bestIdx;
+        }
         function handleFile(file) {
             document.getElementById('file-name').textContent = file.name;
             const ext = file.name.split('.').pop().toLowerCase();
@@ -1085,13 +969,17 @@
                 reader.onload = (e) => {
                     if (ext === 'csv') {
                         const csv = e.target.result;
-                        const json = XLSX.utils.sheet_to_json(XLSX.read(csv, { type: 'string' }).Sheets.Sheet1);
+                        const wbCsv = XLSX.read(csv, { type: 'string' });
+                        const sheet = wbCsv.Sheets[wbCsv.SheetNames[0]];
+                        const headerIdx = detectarHeaderRow(sheet);
+                        const json = XLSX.utils.sheet_to_json(sheet, { range: headerIdx, defval: null });
                         processIngestedData(json, 'CSV/Excel');
                     } else {
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const json = XLSX.utils.sheet_to_json(firstSheet);
+                        const headerIdx = detectarHeaderRow(firstSheet);
+                        const json = XLSX.utils.sheet_to_json(firstSheet, { range: headerIdx, defval: null });
                         processIngestedData(json, 'Excel');
                     }
                 };
@@ -1130,72 +1018,124 @@
 
         function processIngestedData(dataArray, source) {
             if (!dataArray || !dataArray.length) { alert('El archivo no contiene filas de datos.'); return; }
-            const firstRow = dataArray[0] || {};
-            const keys = Object.keys(firstRow).map(k => ({ key: k, lower: k.toLowerCase() }));
-            const findVal = (row, patterns) => {
-                for (const p of patterns) {
-                    for (const { key, lower } of keys) {
-                        if (lower.includes(p.toLowerCase())) {
-                            const v = row[key];
+            // --- NORMALIZACIÓN DEFINITIVA (28 columnas user) ---
+            // Prioridad: usa window.normalizarRowCliente (del externo render-light-core.js) si está cargado.
+            // Si navegador bloqueó el externo (file:// / CORS) → FALLBACK inline implementando MISMA LÓGICA:
+            //   lookup case-insensitive, trim, espacios colapsados, || 0 por defecto en los 28 campos.
+            const _normRow = (row, idx) => {
+                if (typeof window.normalizarRowCliente === 'function') {
+                    const r = window.normalizarRowCliente(row);
+                    if (!r.legajo || r.legajo === '') r.legajo = String(idx + 1);
+                    if (!r.nombre || r.nombre === '') r.nombre = ((r.apellido || '') + (r.apellido && r.nombre ? ', ' : '') + (r.nombre || '')) || `EMPLEADO ${idx + 1}`;
+                    else if (!r.nombre.includes(',') && r.apellido) r.nombre = r.apellido + (r.apellido ? ', ' : '') + r.nombre;
+                    r.nombre = String(r.nombre || '').toUpperCase();
+                    return r;
+                }
+                // ============ FALLBACK inline (igual lógica que render-light-core.js normalizarRowCliente) ============
+                const buildMap = () => {
+                    const m = new Map();
+                    Object.keys(row || {}).forEach((k) => {
+                        const nk = String(k).trim().toUpperCase().replace(/\s+/g, ' ');
+                        if (!m.has(nk)) m.set(nk, k);
+                    });
+                    return m;
+                };
+                const km = buildMap();
+                const g = (list, dflt) => {
+                    for (let i = 0; i < list.length; i++) {
+                        const k = km.get(list[i]);
+                        if (k !== undefined) {
+                            const v = row[k];
                             if (v !== undefined && v !== null && v !== '') return v;
                         }
                     }
-                }
-                return undefined;
-            };
-
-            empleadosData = dataArray.map((row, idx) => {
-                const bruto = parseNumberFromCell(findVal(row, ['SueldoBruto', 'Bruto', 'Sueldo Bruto', 'Haberes', 'Remunerativo'])) || 1500000;
-                const basico = parseNumberFromCell(findVal(row, ['Basico', 'Básico', 'SueldoBasico', 'Sueldo Básico'])) || bruto * 0.55;
-                const antig = parseNumberFromCell(findVal(row, ['Antiguedad', 'Antigüedad', 'AntiguedadMonto'])) || 0;
-                const sac = parseNumberFromCell(findVal(row, ['SAC', 'Aguinaldo', 'SACMonto'])) || bruto * 0.5;
-                const jubDesc = parseNumberFromCell(findVal(row, ['Jubilacion', 'Jubilación', 'JubDesc'])) || bruto * 0.11;
-                const obraDesc = parseNumberFromCell(findVal(row, ['ObraSocial', 'Obra Social', 'OSDesc'])) || bruto * 0.03;
-                const pamiDesc = parseNumberFromCell(findVal(row, ['PAMI', 'INSSJP', 'Ley19032'])) || bruto * 0.03;
-                const sindDesc = parseNumberFromCell(findVal(row, ['Sindicato', 'Sindical', 'AporteSindical'])) || bruto * 0.02;
-                const otroDesc = parseNumberFromCell(findVal(row, ['OtrosDescuentos', 'Otros Desc', 'Descuento'])) || 0;
-                const artCont = parseNumberFromCell(findVal(row, ['ART', 'SeguroVida'])) || bruto * 0.03;
-                const jubCont = parseNumberFromCell(findVal(row, ['JubilacionPatronal', 'SIPA'])) || bruto * 0.18;
-                const obraCont = parseNumberFromCell(findVal(row, ['ObraSocialPatronal', 'OSPatronal'])) || bruto * 0.06;
-                const sindCont = parseNumberFromCell(findVal(row, ['SindicatoPatronal', 'SindicalPatronal'])) || bruto * 0.015;
-                const costoEmp = bruto + artCont + jubCont + obraCont + sindCont;
-                const leg = findVal(row, ['Legajo', 'NroLegajo', 'Id']) || idx + 1;
-                const nombre = findVal(row, ['Nombre', 'Apellido', 'ApellidoNombre', 'Empleado']) || `EMPLEADO ${idx + 1}`;
-                const ing = findVal(row, ['Ingreso', 'FechaIngreso']) || '01/01/2020';
-                const cat = findVal(row, ['Categoria', 'Categoría', 'Cargo', 'Puesto']) || 'Docente';
-                const anosAntig = findVal(row, ['AntiguedadAños', 'AñosAntigüedad', 'Años']) || null;
-                return {
-                    id: String(leg), legajo: String(leg), nombre: String(nombre).toUpperCase(),
-                    ingreso: String(ing), antiguedad: anosAntig ? anosAntig + ' años' : (antig > 0 ? (Math.round(antig / basico * 100) + '%') : '5 años'),
-                    categoria: String(cat),
-                    cuil: String(findVal(row, ['CUIL', 'Cuil', 'CUIT']) || '20-00000000-0'),
-                    banco: String(findVal(row, ['Banco']) || 'BNA'),
-                    cuenta: String(findVal(row, ['Cuenta', 'NroCuenta', 'CuentaBancaria', 'CtaCte', 'N°Cuenta', 'NumeroCuenta', 'NúmeroCuenta']) || 'N° según nómina'),
-                    periodoAportes: 'may-26', fechaAportes: '12/6/2026',
-                    sueldoBruto: bruto, costoTotalEmpleador: costoEmp,
-                    contribuciones: [
-                        { concepto: 'ART + FFEP', unidad: '3.00%', base: bruto, monto: artCont },
-                        { concepto: 'Contribución Jubilación / SIPA', unidad: '18.00%', base: bruto, monto: jubCont },
-                        { concepto: 'Contribución Obra Social', unidad: '6.00%', base: bruto, monto: obraCont },
-                        { concepto: 'Contribución Sindical Patronal', unidad: '1.5%', base: bruto, monto: sindCont }
-                    ].filter(c => c.monto > 0),
-                    conceptos: [
-                        { tipo: 'REMUNERATIVO', concepto: 'Sueldo básico', unidad: '30', base: basico, rem: basico, norem: 0, desc: 0 },
-                        { tipo: 'REMUNERATIVO', concepto: 'Antigüedad', unidad: '%', base: basico, rem: antig, norem: 0, desc: 0 },
-                        { tipo: 'REMUNERATIVO', concepto: 'SAC 1 CUOTA 2026 (Aguinaldo)', unidad: '181 días', base: Math.max(0, bruto - basico - antig), rem: sac, norem: 0, desc: 0 },
-                        { tipo: 'DESCUENTO', concepto: 'Jubilación (11%)', unidad: '11%', base: bruto, rem: 0, norem: 0, desc: jubDesc },
-                        { tipo: 'DESCUENTO', concepto: 'Ley 19.032 INSSJP / PAMI (3%)', unidad: '3%', base: bruto, rem: 0, norem: 0, desc: pamiDesc },
-                        { tipo: 'DESCUENTO', concepto: 'Obra Social (3%)', unidad: '3%', base: bruto, rem: 0, norem: 0, desc: obraDesc },
-                        { tipo: 'DESCUENTO', concepto: 'Aporte Sindical (2%)', unidad: '2%', base: bruto, rem: 0, norem: 0, desc: sindDesc },
-                        { tipo: 'DESCUENTO', concepto: 'Otros Descuentos', unidad: '-', base: otroDesc, rem: 0, norem: 0, desc: otroDesc }
-                    ].filter(c => (c.rem || 0) + (c.norem || 0) + (c.desc || 0) > 0 || c.concepto === 'Sueldo básico')
+                    return dflt;
                 };
+                const num = (v) => {
+                    if (v === null || v === undefined || v === '') return 0;
+                    if (typeof v === 'number') return isFinite(v) ? v : 0;
+                    const s = String(v).replace(/[^0-9,.-]/g, '');
+                    if (!s) return 0;
+                    const lastComma = s.lastIndexOf(',');
+                    const lastDot = s.lastIndexOf('.');
+                    let r;
+                    if (lastComma !== -1 && lastComma > lastDot) r = s.replace(/\./g, '').replace(',', '.');
+                    else if (lastDot !== -1 && lastDot > lastComma) r = s.replace(/,/g, '');
+                    else r = s.replace(',', '.');
+                    const n = Number(r);
+                    return isFinite(n) ? n : 0;
+                };
+                const txt = (v, d='') => (v === null || v === undefined) ? d : String(v);
+                const legajo = txt(g(['CODIGO SERIALIZADOR','CODIGOSERIALIZADOR','LEG AJO','LEGAJO','ID']), String(idx+1)) || String(idx+1);
+                const cuil = txt(g(['CUIL','CUIT']), '00-00000000-0');
+                const apellido = txt(g(['APELLIDO']), '');
+                let nombre = txt(g(['NOMBRE']), '');
+                if (!nombre && !apellido) nombre = `EMPLEADO ${idx+1}`;
+                else if (nombre && !apellido) nombre = nombre.toUpperCase();
+                else {
+                    const p = (apellido + (apellido && nombre ? ', ' : '') + nombre).trim();
+                    nombre = p || `EMPLEADO ${idx+1}`;
+                    nombre = nombre.toUpperCase();
+                }
+                const periodo = txt(g(['PERIODO','PERIODOS']), '');
+                const descripcion = txt(g(['DESCRIPCION','DESCRIPCIÓN','CATEGORIA','CATEGORÍA','CARGO','PUESTO']), 'Docente');
+                const sitRev = txt(g(['SITREV','SIT REV','SITUACION DE REVISTA','SITUACIÓN DE REVISTA']), 'Titular');
+                const antigAM = txt(g(['ANTIG.A/M','ANTIG A/M','ANTIGUEDAD A/M','ANTIGÜEDAD A/M','ANTIG AÑOS MES']), '');
+                const fAlta = txt(g(['F.ALTA','F ALTA','FECHA ALTA','FECHA DE ALTA','INGRESO']), '01/01/2020');
+                const dias = num(g(['DIAS','DÍAS']));
+                const horas = num(g(['HORAS']));
+                const basico = num(g(['BASICO','BÁSICO','SUELDO BASICO','SUELDO BÁSICO']));
+                const presentismo = num(g(['PRESENTISMO']));
+                const antig = num(g(['ANTIG','ANTIGUEDAD','ANTIGÜEDAD','ANTIGUEDAD MONTO']));
+                const sacProp = num(g(['SACPROP','SAC PROP','SAC PROPORCIONAL','AGUINALDO PROPORCIONAL','SAC','AGUINALDO']));
+                const totalRem = num(g(['TOTALREM','TOTAL REM','TOTAL REMUNERATIVO','REMUNERATIVO TOTAL']));
+                const totalNoRem = num(g(['TOTALNOREM','TOTAL NO REM','TOTAL NO REMUNERATIVO','NO REMUNERATIVO TOTAL']));
+                const totalNeto = num(g(['TOTALNETO','TOTAL NETO','NETO','NETO A COBRAR']));
+                const apSS = num(g(['AP.SS','AP SS','APORTE SS','APORTE SEGURIDAD SOCIAL','APORTES SEGURIDAD SOCIAL','AP.SS.','AP SS.','AP JUBILATORIO','APORTE JUBILATORIO']));
+                const apOS = num(g(['AP.OS','AP OS','APORTE OBRA SOCIAL','APORTES OBRA SOCIAL','AP.OS.','AP OS.']));
+                const apFSP = num(g(['AP.FSP','AP FSP','APORTE FSP','APORTES FSP','AP.FSP.','AP FSP.','APORTE FONDO SINDICAL','FSP']));
+                const apSindical = num(g(['AP.SINDICAL','AP SINDICAL','APORTE SINDICAL','APORTES SINDICALES','AP.CS','AP CS','APORTE CUOTA SOCIAL','AP.SINDICAL.','AP SINDICAL.']));
+                const apCC = num(g(['AP.CC','AP CC','APORTE CAJA COMPLEMENTARIA','APORTES CAJA COMPLEMENTARIA','CAJA COMPLEMENTARIA','AP.CC.','AP CC.']));
+                const totalAportes = num(g(['TOTAL APORTES','TOTAL APORTE','TOTAL DE APORTES']));
+                const contribSS = num(g(['CONTRIBSS','CONTRIB SS','CONTRIBUCION SS','CONTRIBUCIÓN SS','CONTRIBUCION SEGURIDAD SOCIAL','CONTRIBUCIÓN SEGURIDAD SOCIAL','APORTE SIPA','CONTRIB SIPA']));
+                const contribOS = num(g(['CONTRIBOS','CONTRIB OS','CONTRIBUCION OBRA SOCIAL','CONTRIBUCIÓN OBRA SOCIAL','CONTRIB OBRA SOCIAL','CONTRIBUCIONES OBRA SOCIAL']));
+                const contribART = num(g(['CONTRIBART','CONTRIB ART','CONTRIBUCION ART','CONTRIBUCIÓN ART','ART','CONTRIB ART']));
+                const contribSVC = num(g(['CONTRIBSVC','CONTRIB SVC','SEGURO DE VIDA','SEGURO DE VIDA OBLIGATORIO','SVC','CONTRIB SEGURO','CONTRIB SVC.']));
+                const contribFSP = num(g(['CONTRIBFSP','CONTRIB FSP','CONTRIBUCION FSP','CONTRIBUCIÓN FSP','FSP PATRONAL','OSECAC']));
+                const totalContribuciones = num(g(['TOTAL CONTRIBUCIONES','TOTAL CONTRIBUCIÓN','TOTAL DE CONTRIBUCIONES']));
+                return {
+                    id: String(legajo), legajo: String(legajo), cuil, apellido, nombre,
+                    periodo, descripcion, categoria: descripcion, sitRev, antigAM, fAlta, ingreso: fAlta,
+                    dias, horas,
+                    basico, presentismo, antig, sacProp,
+                    totalRem, totalNoRem, totalNeto,
+                    sueldoBruto: (totalRem || 0) + (totalNoRem || 0), bruto: (totalRem || 0) + (totalNoRem || 0),
+                    neto: totalNeto,
+                    apSS, apOS, apFSP, apSindical, apCC,
+                    totalAportes, totalDesc: totalAportes,
+                    contribSS, contribOS, contribART, contribSVC, contribFSP,
+                    totalContribuciones,
+                    costoTotalEmpleador: (totalRem || 0) + (totalNoRem || 0) + (totalContribuciones || 0) + (contribSS || 0) + (contribOS || 0) + (contribART || 0) + (contribSVC || 0) + (contribFSP || 0),
+                    banco: 'BNA', cuenta: 'N° según nómina',
+                    antiguedad: antigAM || (fAlta && String(fAlta).length > 5 ? 'Fecha ing.: ' + String(fAlta) : ''),
+                    periodoAportes: periodo || 'per.', fechaAportes: fAlta || ''
+                };
+            };
+            empleadosData = dataArray.map((row, idx) => _normRow(row, idx)).filter((emp) => {
+                // Quitar filas vacías (resúmenes / encabezados colapsados que Excel a veces pone al final)
+                if (!emp || (!emp.legajo && !emp.cuil && !emp.nombre)) return false;
+                if (emp.nombre === 'EMPLEADO 1' && !emp.basico && !emp.totalRem) return false;
+                return true;
             });
-
+            if (!empleadosData || empleadosData.length === 0) {
+                alert('No se encontraron filas con datos válidos de empleados.');
+                return;
+            }
+            selectedEmpIndex = 0;
             filteredIndices = empleadosData.map((_, i) => i);
+            _syncGlobals();
             document.getElementById('search-employee').value = '';
             document.getElementById('filter-categoria').value = '';
-            document.getElementById('filter-banco').value = '';
             actualizarBadgeEstado('archivo');
             sincronizarEmailsMapConEmpleados();
             populateFilterOptions();
@@ -1228,40 +1168,15 @@
             }
         }
 
-        // ========== EXPORTACION INDIVIDUAL (con conversión CANVAS → PNG para impresión fiel) ==========
+        // ========== EXPORTACION INDIVIDUAL (ULTRA-LIGHT, 0 canvas) ==========
+        // Llamada directa a window.print() nativo. Motor C++ del navegador. 0 JS heavy.
         function exportSinglePDF() {
             if (empleadosData.length === 0) { alert('No hay datos para imprimir.'); return; }
-            // 1) Convertimos el gráfico actual a PNG y reemplazamos temporalmente
-            const canvas = document.getElementById('costoChart');
-            let originalHTML = canvas ? canvas.outerHTML : '';
-            if (costoChartInstance && canvas && canvas.parentNode) {
-                try {
-                    const png64 = costoChartInstance.toBase64Image('image/png', 1);
-                    const img = document.createElement('img');
-                    img.src = png64;
-                    img.id = 'costoChart-img-temp';
-                    img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-                    canvas.parentNode.insertBefore(img, canvas);
-                    canvas.style.display = 'none';
-                } catch (e) {}
-            }
-            setTimeout(() => {
-                window.print();
-                setTimeout(() => {
-                    try {
-                        const tempImg = document.getElementById('costoChart-img-temp');
-                        const cnv = document.getElementById('costoChart');
-                        if (tempImg) tempImg.remove();
-                        if (cnv) cnv.style.display = '';
-                    } catch (e) {}
-                }, 800);
-            }, 200);
+            window.print();
         }
 
-        // ========== EXPORTACION EN LOTE (FIX GRAFICO POR LEGAJO) ==========
-        // Renderizamos cada recibo uno por uno, esperamos que Chart.js pinte el canvas,
-        // lo convertimos a PNG Base64 y reemplazamos <canvas> por <img> en el CLON.
-        // Resultado: TODAS las páginas del PDF tienen su gráfico de torta fiel por empleado.
+        // ========== EXPORTACION EN LOTE ULTRA-LIGHT (sin canvas, sin toBase64Image, sin PNG temporales)
+        // Render secuencial cada recibo con renderReciboDirecto → clon del HTML #printable-recibo → append → print 1 solo dialogo.
         async function exportAllPDFs() {
             if (!empleadosData.length) { alert('No hay datos para imprimir.'); return; }
             // Usamos filteredIndices para imprimir solo los empleados que cumplen el filtro actual (cat/banco/texto):
@@ -1279,30 +1194,20 @@
             printContainer.id = 'batch-print-container';
             document.body.appendChild(printContainer);
 
-            // Recorrer UNO POR UNO (async para que Chart.js tenga tiempo de render)
+            // Recorrer UNO POR UNO (render textContent directo → 0 canvas, 0 png, ~8ms por legajo)
             for (let n = 0; n < indicesAImprimir.length; n++) {
                 const idx = indicesAImprimir[n];
                 selectedEmpIndex = idx;
                 renderRecibo(idx);
-                // Esperar a que Chart.js termine de pintar (120ms + 2 requestAnimationFrame)
-                await new Promise(res => setTimeout(res, 120));
-                await new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
-                // Convertir canvas a imagen PNG
-                let png64 = '';
-                try { if (costoChartInstance) png64 = costoChartInstance.toBase64Image('image/png', 1); } catch (e) {}
-                // Clonar todo el recibo
+                // Espera corta para pintar DOM (solo 1 rAF. No hay chart.js ya)
+                await new Promise(res => requestAnimationFrame(res));
+                // Clonar todo el recibo (ya está pintado 100% textContent. No hay canvas.)
                 const clone = document.getElementById('printable-recibo').cloneNode(true);
                 clone.id = 'printable-recibo-batch-' + idx;
                 clone.style.pageBreakAfter = (n < indicesAImprimir.length - 1) ? 'always' : 'auto';
-                // Reemplazar el <canvas> del clone por un <img> con el PNG
-                const canvasEnClone = clone.querySelector('#costoChart');
-                if (canvasEnClone && png64) {
-                    const img = document.createElement('img');
-                    img.src = png64;
-                    img.style.cssText = 'width:100%;height:250px;object-fit:contain;';
-                    canvasEnClone.parentNode.insertBefore(img, canvasEnClone);
-                    canvasEnClone.remove();
-                }
+                // Quitar elementos canvas residuales si existieran
+                const canvases = clone.querySelectorAll('canvas');
+                for (let c = 0; c < canvases.length; c++) canvases[c].remove();
                 printContainer.appendChild(clone);
             }
             // CSS para que en modo IMPRESIÓN solo se vea el batch container
@@ -1337,29 +1242,61 @@
         function exportSingleExcel() {
             const emp = empleadosData[selectedEmpIndex];
             if (!emp) return;
-            const periodo = document.getElementById('input-periodo').value;
+            const periodo = document.getElementById('input-periodo').value || emp.periodo || 'per.';
+            // Campos canónicos (resultado normalizarRowCliente)
+            const bruto = (emp.sueldoBruto || 0) + 0;
+            const totalRem = (emp.totalRem || 0);
+            const totalNoRem = (emp.totalNoRem || 0);
+            const totalDesc = (emp.totalAportes || 0) + (emp.totalDesc || 0);
+            const neto = (emp.totalNeto || emp.neto || (totalRem + totalNoRem - totalDesc));
             const wsData = [
                 ["RECIBO DE HABERES - LEY 20.744 / SAC"],
                 ["Empresa:", "INSTITUCIÓN EDUCATIVA CATÓLICA", "CUIT:", "30-00000000-0"],
-                ["Empleado:", emp.nombre, "Legajo:", emp.legajo],
-                ["CUIL:", emp.cuil, "Categoría:", emp.categoria],
-                ["Período:", periodo, "Sueldo Bruto:", emp.sueldoBruto],
+                ["Empleado:", emp.nombre || "", "Legajo:", emp.legajo || ""],
+                ["CUIL:", emp.cuil || "", "Categoría:", emp.descripcion || emp.categoria || ""],
+                ["Período:", periodo, "Sueldo Bruto:", bruto],
+                ["Fecha Alta / Ingreso:", emp.fAlta || emp.ingreso || "", "Situación Revista:", emp.sitRev || ""],
                 [],
                 ["Concepto", "Unidad", "Base", "Remunerativo", "No Remunerativo", "Descuento"]
             ];
-            emp.conceptos.forEach(c => {
-                wsData.push([c.concepto, c.unidad, c.base, c.rem || "", c.norem || "", c.desc || ""]);
-            });
-            const t = calculateNetAndTotals(emp);
+            // 5 filas HABERES (no forEach, no loops). 0 createElement → solo push datos estáticos
+            wsData.push(["Sueldo Básico", String(emp.dias||"30"), emp.basico||0, emp.basico||0, 0, 0]);
+            wsData.push(["Presentismo", emp.horas?"Horas":"", emp.presentismo||0, emp.presentismo||0, 0, 0]);
+            wsData.push(["Antigüedad", emp.antigAM||"", emp.antig||0, emp.antig||0, 0, 0]);
+            wsData.push(["SAC Proporcional / Aguinaldo", "", emp.sacProp||0, emp.sacProp||0, 0, 0]);
+            wsData.push(["Otros haberes (según nómina)", "", 0, 0, 0, 0]);
+            // Subtotales REM / NOREM
+            wsData.push(["SUB TOTAL REMUNERATIVO", "", "", totalRem, "", ""]);
+            wsData.push(["SUB TOTAL NO REMUNERATIVO", "", "", "", totalNoRem, ""]);
+            // 5 APORTES / DESCUENTOS
+            wsData.push(["Aporte Jubilatorio 11% (SS)", "11%", totalRem, "", "", (emp.apSS||0)]);
+            wsData.push(["Aporte Obra Social 3% (OS)", "3%", totalRem, "", "", (emp.apOS||0)]);
+            wsData.push(["Aporte Fondo Sindical (FSP)", "", 0, "", "", (emp.apFSP||0)]);
+            wsData.push(["Aporte Sindical / Cuota Social", "", 0, "", "", (emp.apSindical||0)]);
+            wsData.push(["Caja Complementaria / Otros desc.", "", 0, "", "", (emp.apCC||0)]);
+            // Subtotal desc
+            wsData.push(["SUB TOTAL DESCUENTOS", "", "", "", "", totalDesc]);
+            // Totales finales
             wsData.push([]);
-            wsData.push(["Total Remunerativo", "", "", t.totalRem, "", ""]);
-            wsData.push(["Total No Remunerativo", "", "", "", t.totalNoRem, ""]);
-            wsData.push(["Total Descuentos", "", "", "", "", t.totalDesc]);
-            wsData.push(["SUELDO NETO", "", "", "", "", t.neto]);
+            wsData.push(["Total Remunerativo", "", "", totalRem, "", ""]);
+            wsData.push(["Total No Remunerativo", "", "", "", totalNoRem, ""]);
+            wsData.push(["Total Descuentos", "", "", "", "", totalDesc]);
+            wsData.push(["SUELDO NETO", "", "", "", "", neto]);
+            // Contribuciones Patronales (informativo)
+            wsData.push([]);
+            wsData.push(["=== CONTRIBUCIONES PATRONALES (informativo) ==="]);
+            wsData.push(["Contribución Jubilación / SIPA", "", "", "", "", (emp.contribSS||0)]);
+            wsData.push(["Contribución Obra Social", "", "", "", "", (emp.contribOS||0)]);
+            wsData.push(["ART + FFEP", "", "", "", "", (emp.contribART||0)]);
+            wsData.push(["Seguro de Vida / SVC", "", "", "", "", (emp.contribSVC||0)]);
+            wsData.push(["OSECAC / FSP Patronal", "", "", "", "", (emp.contribFSP||0)]);
+            wsData.push(["TOTAL CONTRIBUCIONES PATRONALES", "", "", "", "", (emp.totalContribuciones||0)]);
+            wsData.push(["COSTO TOTAL EMPLEADOR", "", "", "", "", (emp.costoTotalEmpleador || (totalRem + totalNoRem + (emp.totalContribuciones||0)))]);
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             XLSX.utils.book_append_sheet(wb, ws, "Recibo_SAC");
-            const filename = `Recibo_SAC_Legajo_${emp.legajo}_${emp.nombre.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+            const nomArch = (emp.nombre || "empleado").replace(/[^a-zA-Z0-9]/g, '_').slice(0,40);
+            const filename = `Recibo_SAC_Legajo_${emp.legajo||'0'}_${nomArch}.xlsx`;
             XLSX.writeFile(wb, filename);
         }
 
@@ -1683,5 +1620,8 @@
             alert(resumen);
         }
     </script>
+    <!-- RENDER ENGINE ULTRA-LIGHT (orden: cargar ANTES del DOMContentLoaded inline)
+         SI CORS file:// bloquea el externo → renderRecibo() usa FALLBACK inline interno. NUNCA se rompe la app. -->
+    <script src="./render-light-core.js" defer onerror="window.__renderExternoCargado=false; console.warn('[DEMO-LITO] render-light-core.js no cargó (posible file:// CORS). Usando fallback inline renderRecibo().');"></script>
 </body>
 </html>
